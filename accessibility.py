@@ -19,7 +19,6 @@ def apply_accessibility():
         key="accessibility_high_contrast"
     )
 
-    # Apply accessibility styles
     if larger_text:
         st.markdown(
             """
@@ -107,7 +106,6 @@ def apply_accessibility():
 
         document.getElementById("play").onclick = () => {
             const text = textBox.value.trim();
-
             stopSpeech();
 
             if (!text) {
@@ -116,7 +114,8 @@ def apply_accessibility():
             }
 
             if (!("speechSynthesis" in window)) {
-                status.textContent = "Speech is not supported by this browser.";
+                status.textContent =
+                    "Speech is not supported by this browser.";
                 return;
             }
 
@@ -132,7 +131,8 @@ def apply_accessibility():
             };
 
             utterance.onerror = () => {
-                status.textContent = "Speech stopped or unavailable.";
+                status.textContent =
+                    "Speech stopped or unavailable.";
             };
 
             window.speechSynthesis.speak(utterance);
@@ -147,22 +147,187 @@ def apply_accessibility():
         height=240
     )
 
-    # Voice Input
+    # Browser Voice Recognition
     st.sidebar.markdown("---")
     st.sidebar.subheader("🎤 Voice Input")
 
-    if hasattr(st, "audio_input"):
-        audio_value = st.sidebar.audio_input(
-            "Record your question",
-            key="accessibility_voice_input"
-        )
+    components.html(
+        """
+        <div style="font-family:Arial,sans-serif;padding:8px;
+                    color:inherit;">
+            <label for="voiceLanguage"
+                   style="font-size:15px;font-weight:bold;">
+                Choose your speaking language
+            </label>
 
-        if audio_value is not None:
-            st.sidebar.info(
-                "Recording received. Automatic speech-to-text "
-                "requires a speech recognition service."
-            )
-    else:
-        st.sidebar.caption(
-            "Voice recording is not supported in this Streamlit version."
-        )
+            <select id="voiceLanguage"
+                    style="width:100%;padding:10px;
+                           margin:8px 0;font-size:16px;">
+                <option value="en-IN">English</option>
+                <option value="kn-IN">ಕನ್ನಡ (Kannada)</option>
+                <option value="hi-IN">हिन्दी (Hindi)</option>
+                <option value="mr-IN">मराठी (Marathi)</option>
+            </select>
+
+            <button id="startVoice"
+                    style="width:100%;padding:12px;
+                           font-size:16px;cursor:pointer;">
+                🎤 Start Speaking
+            </button>
+
+            <button id="stopVoice"
+                    style="width:100%;padding:10px;
+                           margin-top:8px;font-size:16px;
+                           cursor:pointer;" disabled>
+                ■ Stop Recording
+            </button>
+
+            <p id="voiceStatus" aria-live="polite">
+                Choose a language and press Start Speaking.
+            </p>
+
+            <label for="recognizedText"
+                   style="font-size:15px;font-weight:bold;">
+                Recognized text
+            </label>
+
+            <textarea id="recognizedText"
+                      placeholder="Your spoken words will appear here..."
+                      style="width:100%;height:120px;
+                             box-sizing:border-box;
+                             padding:10px;font-size:16px;"
+                      aria-live="polite"></textarea>
+
+            <button id="copyVoice"
+                    style="width:100%;padding:10px;
+                           margin-top:8px;font-size:16px;">
+                📋 Copy Recognized Text
+            </button>
+
+            <p style="font-size:13px;line-height:1.5;">
+                After copying, paste the text into the question
+                box on the AI Assistant page.
+            </p>
+        </div>
+
+        <script>
+        const startButton = document.getElementById("startVoice");
+        const stopButton = document.getElementById("stopVoice");
+        const languageSelect = document.getElementById("voiceLanguage");
+        const recognizedText = document.getElementById("recognizedText");
+        const voiceStatus = document.getElementById("voiceStatus");
+        const copyButton = document.getElementById("copyVoice");
+
+        const SpeechRecognition =
+            window.SpeechRecognition ||
+            window.webkitSpeechRecognition;
+
+        let recognition = null;
+        let finalText = "";
+        let manuallyStopped = false;
+
+        if (!SpeechRecognition) {
+            startButton.disabled = true;
+            voiceStatus.textContent =
+                "Voice recognition is not supported here. " +
+                "Try an updated version of Google Chrome.";
+        }
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onstart = () => {
+                voiceStatus.textContent = "Listening... Speak now.";
+                startButton.disabled = true;
+                stopButton.disabled = false;
+            };
+
+            recognition.onresult = (event) => {
+                let interimText = "";
+
+                for (let i = event.resultIndex;
+                     i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+
+                    if (event.results[i].isFinal) {
+                        finalText += transcript + " ";
+                    } else {
+                        interimText += transcript;
+                    }
+                }
+
+                recognizedText.value = finalText + interimText;
+            };
+
+            recognition.onerror = (event) => {
+                voiceStatus.textContent =
+                    "Recognition issue: " + event.error +
+                    ". Check microphone permission and internet.";
+            };
+
+            recognition.onend = () => {
+                startButton.disabled = false;
+                stopButton.disabled = true;
+
+                if (manuallyStopped) {
+                    voiceStatus.textContent =
+                        "Recording stopped. You can copy your text.";
+                } else if (finalText.trim()) {
+                    voiceStatus.textContent =
+                        "Speech captured. Check the text below.";
+                } else {
+                    voiceStatus.textContent =
+                        "No words captured. Please try again.";
+                }
+            };
+        }
+
+        startButton.onclick = () => {
+            if (!recognition) return;
+
+            finalText = "";
+            recognizedText.value = "";
+            manuallyStopped = false;
+            recognition.lang = languageSelect.value;
+
+            try {
+                recognition.start();
+            } catch (error) {
+                voiceStatus.textContent =
+                    "Please wait a moment and try again.";
+            }
+        };
+
+        stopButton.onclick = () => {
+            if (recognition) {
+                manuallyStopped = true;
+                recognition.stop();
+            }
+        };
+
+        copyButton.onclick = async () => {
+            const text = recognizedText.value.trim();
+
+            if (!text) {
+                voiceStatus.textContent =
+                    "Speak first so there is text to copy.";
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(text);
+                voiceStatus.textContent =
+                    "Text copied. Paste it into your AI Assistant question box.";
+            } catch (error) {
+                recognizedText.focus();
+                recognizedText.select();
+                voiceStatus.textContent =
+                    "Text selected. Press Ctrl+C to copy, then paste it into the AI Assistant.";
+            }
+        };
+        </script>
+        """,
+        height=540
+    )
