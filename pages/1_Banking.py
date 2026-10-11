@@ -8,6 +8,15 @@ st.set_page_config(
     layout="wide"
 )
 
+# Temporary language diagnostic
+selected_language = st.session_state.get("language", "NOT SET")
+
+st.write("Selected language:", selected_language)
+st.write("Translation test:", tr("Welcome to FinSaathi"))
+
+st.markdown("---")
+
+# Banking page
 st.title("🏦 " + tr("Banking Basics"))
 st.write(tr("Learn how to use banking services safely."))
 
@@ -37,14 +46,14 @@ st.subheader(tr("3. Types of Bank Accounts"))
 
 st.markdown(
     "\n".join([
-        "- **" + tr("Savings Account") + ":** " +
-        tr("For saving money and earning interest."),
-        "- **" + tr("Current Account") + ":** " +
-        tr("Commonly used by businesses."),
-        "- **" + tr("Fixed Deposit (FD)") + ":** " +
-        tr("Money deposited for a fixed period."),
-        "- **" + tr("Recurring Deposit (RD)") + ":** " +
-        tr("Money saved regularly over time.")
+        "- **" + tr("Savings Account") + ":** "
+        + tr("For saving money and earning interest."),
+        "- **" + tr("Current Account") + ":** "
+        + tr("Commonly used by businesses."),
+        "- **" + tr("Fixed Deposit (FD)") + ":** "
+        + tr("Money deposited for a fixed period."),
+        "- **" + tr("Recurring Deposit (RD)") + ":** "
+        + tr("Money saved regularly over time.")
     ])
 )
 
@@ -55,7 +64,9 @@ st.markdown(
         "- " + tr("Keep your ATM card and PIN safe."),
         "- " + tr("Never share OTPs or passwords."),
         "- " + tr("Use official banking apps and websites."),
-        "- " + tr("Contact your bank immediately if you notice suspicious activity.")
+        "- " + tr(
+            "Contact your bank immediately if you notice suspicious activity."
+        )
     ])
 )
 
