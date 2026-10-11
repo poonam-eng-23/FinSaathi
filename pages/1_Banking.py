@@ -8,12 +8,36 @@ st.set_page_config(
     layout="wide"
 )
 
-# Restore the language when opening this page directly
-if "language" not in st.session_state:
-    saved_language = st.query_params.get("language", "English")
-    if saved_language not in LANGUAGES:
-        saved_language = "English"
-    st.session_state["language"] = saved_language
+# Language selector on this page
+st.sidebar.title("🌐 Language Settings")
+
+current_language = st.session_state.get("language", "English")
+if current_language not in LANGUAGES:
+    current_language = "English"
+
+selected_language = st.sidebar.selectbox(
+    "Choose your language",
+    LANGUAGES,
+    index=LANGUAGES.index(current_language),
+    key="banking_language"
+)
+
+# Save the selection for the translation function
+st.session_state["language"] = selected_language
+st.query_params["language"] = selected_language
+
+# Temporary diagnostic test
+st.write("Selected language:", selected_language)
+test_translation = tr("Welcome to FinSaathi")
+st.write("Translation test:", test_translation)
+
+if selected_language == "ಕನ್ನಡ" and test_translation == "Welcome to FinSaathi":
+    st.warning(
+        "The language is selected, but the translation service "
+        "has returned the original English text. Check the API configuration."
+    )
+
+st.markdown("---")
 
 st.title("🏦 " + tr("Banking Basics"))
 st.write(tr("Learn how to use banking services safely."))
@@ -32,7 +56,9 @@ st.write(tr(
     "activities using your ATM card and PIN."
 ))
 
-st.warning(tr("Never share your ATM PIN, password, or OTP with anyone."))
+st.warning(
+    "⚠️ " + tr("Never share your ATM PIN, password, or OTP with anyone.")
+)
 
 st.subheader(tr("3. Types of Bank Accounts"))
 st.markdown("\n".join([
