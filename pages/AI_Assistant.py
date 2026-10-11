@@ -1,146 +1,74 @@
 
 import streamlit as st
 from translation import tr, LANGUAGES
-from accessibility import apply_accessibility
 
 st.set_page_config(
-    page_title="FinSaathi - AI Assistant",
+    page_title="AI Assistant - FinSaathi",
     page_icon="🤖",
     layout="wide"
 )
 
-if "language" not in st.session_state:
-    st.session_state["language"] = "English"
+st.title("🤖 FinSaathi AI Assistant")
+st.write("Ask questions about banking, savings, budgeting, and fraud safety.")
 
-if "language_picker" not in st.session_state:
-    st.session_state["language_picker"] = st.session_state["language"]
+st.markdown("---")
 
-
-def t(text):
-    return tr(text)
-
-
-def update_language():
-    st.session_state["language"] = st.session_state["language_picker"]
-
-
-st.sidebar.title("💙 FinSaathi")
-
-st.sidebar.selectbox(
-    t("Choose your language"),
-    LANGUAGES,
-    key="language_picker",
-    on_change=update_language
-)
-
-# Accessibility settings
-apply_accessibility()
-
-# AI Assistant page
-st.title("🤖 " + t("Meet Saathi"))
-
-st.write(
-    t("Your friendly guide to learning everyday financial skills.")
-)
-
-st.info(
-    t("Saathi provides basic financial education. Never share your "
-      "OTP, PIN, password or complete bank account details here.")
-)
-
-# Suggested questions
-st.header("💡 " + t("Choose a Question"))
+st.subheader("Choose a question")
 
 suggestions = {
-    "Banking": "How can I open a bank account?",
-    "Savings": "How can I start saving money?",
-    "UPI Safety": "How can I use UPI safely?",
-    "Fraud": "How can I recognise a financial scam?",
-    "Budget": "How can I make a monthly budget?"
+    "How can I save money?": (
+        "Start by tracking your expenses, setting a realistic goal, "
+        "and saving a manageable amount regularly."
+    ),
+    "How can I stay safe from UPI fraud?": (
+        "Never share your UPI PIN or OTP. Verify the recipient before "
+        "paying, and remember that receiving money does not require "
+        "entering your UPI PIN."
+    ),
+    "What is a savings account?": (
+        "A savings account is a bank account used to keep money safely. "
+        "Depending on the account, the bank may pay interest."
+    ),
+    "How can I plan a budget?": (
+        "List your income and expenses, separate needs from wants, "
+        "and set a savings goal that suits your situation."
+    )
 }
 
-selected_topic = st.selectbox(
-    t("Select a topic"),
-    list(suggestions.keys()),
-    key="assistant_topic"
+selected_question = st.selectbox(
+    "Select a suggested question",
+    ["Choose a question..."] + list(suggestions.keys())
 )
 
-if st.button(t("Ask Saathi"), use_container_width=True):
-    st.session_state["assistant_question"] = suggestions[selected_topic]
+if selected_question != "Choose a question...":
+    st.info(suggestions[selected_question])
 
-# Question input
-st.header("💬 " + t("Ask Your Question"))
+st.markdown("---")
 
-question = st.text_input(
-    t("Type your financial question"),
-    placeholder="Example: How can I save money every month?",
-    key="assistant_question_input"
+st.subheader("Ask your own question")
+
+user_question = st.text_area(
+    "Type your financial question",
+    placeholder="For example: How do I open a bank account?"
 )
 
-if st.button(t("Get Answer"), use_container_width=True):
-    if not question.strip():
-        st.warning(t("Please enter a question first."))
+if st.button("Get Guidance"):
+    if not user_question.strip():
+        st.warning("Please type a question first.")
     else:
-        q = question.lower()
-
-        if any(word in q for word in ["bank", "account", "atm"]):
-            answer = (
-                "A bank account helps you keep money safe, receive "
-                "payments and make transactions. Ask a bank about "
-                "account options and required documents. Never share "
-                "your PIN or OTP."
-            )
-
-        elif any(word in q for word in ["save", "saving", "savings"]):
-            answer = (
-                "Start by choosing a realistic goal. Track your income "
-                "and expenses, then save a manageable amount regularly "
-                "when possible. Keep emergency needs in mind."
-            )
-
-        elif any(word in q for word in ["upi", "payment", "pin"]):
-            answer = (
-                "Use a trusted UPI app, check the recipient and amount, "
-                "and enter your UPI PIN only to authorise a payment. "
-                "You do not need a UPI PIN to receive money."
-            )
-
-        elif any(word in q for word in ["fraud", "scam", "otp", "fake"]):
-            answer = (
-                "Never share an OTP, PIN or password. Avoid unknown "
-                "links and unexpected payment requests. Verify with "
-                "your bank through official contact details."
-            )
-
-        elif any(word in q for word in ["budget", "expense", "spend", "money"]):
-            answer = (
-                "Write down your expected income and necessary expenses. "
-                "Plan for needs first, set a realistic savings goal, "
-                "and review your spending regularly."
-            )
-
-        else:
-            answer = (
-                "I can help with basic banking, savings, budgeting, "
-                "UPI safety and scam awareness. Try asking about one "
-                "of these topics. This assistant uses simple topic-based "
-                "responses and does not understand every question."
-            )
-
-        st.session_state["assistant_answer"] = answer
-
-if "assistant_answer" in st.session_state:
-    st.subheader("📘 " + t("Saathi's Answer"))
-    st.write(st.session_state["assistant_answer"])
-
-st.divider()
+        st.info(
+            "Your question: " + user_question
+        )
+        st.write(
+            "For reliable guidance, check your bank's official website "
+            "or contact an authorized banking representative. "
+            "Never share your PIN, OTP, or password."
+        )
 
 st.caption(
-    t("Educational information only. For account-specific issues, "
-      "contact your bank through official channels.")
+    "This is a basic educational assistant with suggested answers. "
+    "It is not connected to a live AI service."
 )
 
-if st.button("🏠 " + t("Home"), use_container_width=True):
-    st.switch_page("app.py")
-
-st.caption("💙 FinSaathi — " + t("Learn Finance. Stay Safe."))
+st.markdown("---")
+st.caption("FinSaathi — Learn Finance. Stay Safe.")
