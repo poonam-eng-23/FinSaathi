@@ -8,18 +8,24 @@ st.set_page_config(
     layout="wide"
 )
 
-# Language selection
-st.sidebar.title("🌐 Language Settings")
+# Restore the selected language from the URL, if available
+if "language" not in st.session_state:
+    saved_language = st.query_params.get("language", "English")
+    if saved_language not in LANGUAGES:
+        saved_language = "English"
+    st.session_state["language"] = saved_language
+
+st.sidebar.title("🌐 " + tr("Language Settings"))
 
 selected_language = st.sidebar.selectbox(
     "Choose your language",
     LANGUAGES,
-    index=LANGUAGES.index("English")
-    if "English" in LANGUAGES else 0,
     key="language"
 )
 
-# Home page
+# Keep the selected language in the URL when navigating pages
+st.query_params["language"] = selected_language
+
 st.title("💰 " + tr("FinSaathi"))
 st.subheader(tr("Learn Finance. Stay Safe."))
 
