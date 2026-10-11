@@ -1,161 +1,82 @@
 
 import streamlit as st
 from translation import tr, LANGUAGES
-from accessibility import apply_accessibility
 
 st.set_page_config(
     page_title="FinSaathi",
-    page_icon="💙",
+    page_icon="💰",
     layout="wide"
 )
 
-if "language" not in st.session_state:
-    st.session_state["language"] = "English"
+# Language selection
+st.sidebar.title("🌐 Language")
 
-if "language_picker" not in st.session_state:
-    st.session_state["language_picker"] = st.session_state["language"]
+language_options = list(LANGUAGES.keys())
 
-if "accessibility_mode" not in st.session_state:
-    st.session_state["accessibility_mode"] = False
-
-
-def update_language():
-    st.session_state["language"] = st.session_state["language_picker"]
-
-
-def t(text):
-    return tr(text)
-
-
-st.sidebar.title("💙 FinSaathi")
-
-st.sidebar.selectbox(
-    t("Choose your language"),
-    LANGUAGES,
-    key="language_picker",
-    on_change=update_language
+selected_language = st.sidebar.selectbox(
+    "Choose your language",
+    language_options,
+    key="selected_language"
 )
 
-st.sidebar.markdown("---")
-st.sidebar.subheader(t("Accessibility"))
+# Store selected language
+st.session_state["language"] = selected_language
 
-# Accessibility Mode ON/OFF
-apply_accessibility()
-
-st.sidebar.markdown("---")
-st.sidebar.subheader(t("Menu"))
-
-pages = [
-    ("🏠", "Home", "app.py"),
-    ("🏦", "Banking", "pages/1_Banking.py"),
-    ("💰", "Savings", "pages/Savings.py"),
-    ("📱", "UPI", "pages/UPI.py"),
-    ("🛡️", "Fraud Safety", "pages/Fraud_Safety.py"),
-    ("🤖", "AI Assistant", "pages/AI_Assistant.py"),
-    ("📊", "Budget", "pages/Budget.py"),
-    ("📝", "Quiz", "pages/Quiz.py"),
-]
-
-for emoji, label, path in pages:
-    st.sidebar.page_link(
-        path,
-        label=f"{emoji} {t(label)}"
-    )
-
-st.title("💙 FinSaathi")
-st.subheader(t("Learn Finance. Stay Safe."))
-
-st.markdown("---")
-st.header(t("Welcome to FinSaathi!"))
+# Home page
+st.title("💰 FinSaathi")
+st.subheader("Learn Finance. Stay Safe.")
 
 st.write(
-    t(
-        "Your financial literacy companion for safer banking, "
-        "smarter savings, and fraud awareness."
-    )
+    "Welcome to FinSaathi! Learn about banking, savings, "
+    "UPI payments, budgeting, and financial fraud prevention."
 )
 
-# Accessibility information on the home page
-st.markdown("---")
-st.subheader(t("♿ Make FinSaathi easier to use"))
-
-st.write(
-    t(
-        "Turn on Accessibility Mode in the sidebar to make text "
-        "larger and buttons easier to use."
-    )
+st.info(
+    "💡 Learn how to manage money safely and make better "
+    "financial decisions."
 )
-
-features = [
-    (
-        "🏦",
-        "Banking",
-        "pages/1_Banking.py",
-        "Learn about bank accounts, ATMs, and banking services."
-    ),
-    (
-        "💰",
-        "Savings",
-        "pages/Savings.py",
-        "Discover simple ways to save money."
-    ),
-    (
-        "📱",
-        "UPI",
-        "pages/UPI.py",
-        "Learn how to use UPI safely."
-    ),
-    (
-        "🛡️",
-        "Fraud Safety",
-        "pages/Fraud_Safety.py",
-        "Recognize suspicious messages and avoid online scams."
-    ),
-    (
-        "🤖",
-        "AI Assistant",
-        "pages/AI_Assistant.py",
-        "Get help with basic financial questions."
-    ),
-    (
-        "📊",
-        "Budget",
-        "pages/Budget.py",
-        "Plan your income, expenses, and savings."
-    ),
-    (
-        "📝",
-        "Quiz",
-        "pages/Quiz.py",
-        "Test your financial knowledge."
-    ),
-]
-
-for start in range(0, len(features), 2):
-    columns = st.columns(2)
-
-    for column, feature in zip(
-        columns,
-        features[start:start + 2]
-    ):
-        emoji, title, path, description = feature
-
-        with column:
-            st.markdown(f"### {emoji} {t(title)}")
-            st.write(t(description))
-            st.page_link(
-                path,
-                label=t("Explore")
-            )
 
 st.markdown("---")
+st.subheader("📚 Explore FinSaathi")
 
-st.warning(
-    t(
-        "Never share your OTP, UPI PIN, or bank password with anyone."
-    )
-)
+col1, col2 = st.columns(2)
 
-st.caption(
-    t("FinSaathi — Learn Finance. Stay Safe. 💙")
-)
+with col1:
+    st.markdown("### 🏦 Banking")
+    st.write("Learn about bank accounts, ATMs, and banking safety.")
+    if st.button("Open Banking", use_container_width=True):
+        st.switch_page("pages/1_Banking.py")
+
+    st.markdown("### 💰 Savings")
+    st.write("Learn simple ways to save money.")
+    if st.button("Open Savings", use_container_width=True):
+        st.switch_page("pages/Savings.py")
+
+    st.markdown("### 📱 UPI Payments")
+    st.write("Understand digital payments and safe UPI practices.")
+    if st.button("Open UPI", use_container_width=True):
+        st.switch_page("pages/UPI.py")
+
+    st.markdown("### 🛡️ Fraud Safety")
+    st.write("Learn how to identify scams and protect your money.")
+    if st.button("Open Fraud Safety", use_container_width=True):
+        st.switch_page("pages/Fraud_Safety.py")
+
+with col2:
+    st.markdown("### 🤖 AI Assistant")
+    st.write("Explore financial questions and get helpful guidance.")
+    if st.button("Open AI Assistant", use_container_width=True):
+        st.switch_page("pages/AI_Assistant.py")
+
+    st.markdown("### 📊 Budget Planner")
+    st.write("Plan your monthly spending and savings.")
+    if st.button("Open Budget", use_container_width=True):
+        st.switch_page("pages/Budget.py")
+
+    st.markdown("### 📝 Financial Quiz")
+    st.write("Test your financial knowledge.")
+    if st.button("Open Quiz", use_container_width=True):
+        st.switch_page("pages/Quiz.py")
+
+st.markdown("---")
+st.caption("FinSaathi — Learn Finance. Stay Safe.")
