@@ -1,4 +1,3 @@
-
 import streamlit as st
 from translation import tr
 
@@ -8,7 +7,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# All 22 scheduled Indian languages + English
 LANGUAGES = {
     "English": "English",
     "অসমীয়া — Assamese": "Assamese",
@@ -32,10 +30,10 @@ LANGUAGES = {
     "سنڌي — Sindhi": "Sindhi",
     "தமிழ் — Tamil": "Tamil",
     "తెలుగు — Telugu": "Telugu",
-    "اردू — Urdu": "Urdu",
+    "اردو — Urdu": "Urdu",
 }
 
-# Language selector
+# Language selection
 st.sidebar.title("🌐 Language / ಭಾಷೆ")
 
 language_names = list(LANGUAGES.keys())
@@ -48,7 +46,7 @@ if current_language not in language_names:
     current_language = "English"
 
 selected_language = st.sidebar.selectbox(
-    tr("Choose your language"),
+    "Choose your language",
     language_names,
     index=language_names.index(current_language),
     key="language_selector"
@@ -56,12 +54,15 @@ selected_language = st.sidebar.selectbox(
 
 st.session_state["selected_language"] = selected_language
 
-# Keep compatibility with existing pages
-supported_languages = [
-    "English", "Kannada", "Hindi", "Marathi"
-]
-
+# Existing pages use these language names
 language_name = LANGUAGES[selected_language]
+
+supported_languages = [
+    "English",
+    "Kannada",
+    "Hindi",
+    "Marathi"
+]
 
 if language_name in supported_languages:
     st.session_state["language_code"] = language_name
@@ -88,57 +89,57 @@ st.info(
 
 st.divider()
 
-st.header(tr("📚 Learn About Finance"))
+st.header(tr("Learn About Finance"))
 
 col1, col2 = st.columns(2)
 
 with col1:
     st.page_link(
         "pages/1_Banking.py",
-        label=tr("🏦 Banking Basics"),
+        label=tr("Banking Basics"),
         icon="🏦"
     )
 
     st.page_link(
         "pages/Savings.py",
-        label=tr("💰 Savings"),
+        label=tr("Savings"),
         icon="💰"
     )
 
     st.page_link(
         "pages/UPI.py",
-        label=tr("📱 UPI Payments"),
+        label=tr("UPI Payments"),
         icon="📱"
     )
 
     st.page_link(
         "pages/Budget.py",
-        label=tr("📊 Budget Planner"),
+        label=tr("Budget Planner"),
         icon="📊"
     )
 
 with col2:
     st.page_link(
         "pages/Fraud_safety.py",
-        label=tr("🛡️ Fraud Safety"),
+        label=tr("Fraud Safety"),
         icon="🛡️"
     )
 
     st.page_link(
         "pages/AI_Assistant.py",
-        label=tr("🤖 Saathi Assistant"),
+        label=tr("Saathi Assistant"),
         icon="🤖"
     )
 
     st.page_link(
         "pages/Quiz.py",
-        label=tr("📝 Financial Quiz"),
+        label=tr("Financial Quiz"),
         icon="📝"
     )
 
 st.divider()
 
-st.subheader(tr("💡 Financial Safety Tip"))
+st.subheader(tr("Financial Safety Tip"))
 
 st.write(
     tr(
@@ -154,4 +155,3 @@ st.caption(
         "replace advice from a qualified financial professional."
     )
 )
-```
