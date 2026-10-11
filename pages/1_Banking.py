@@ -1,3 +1,4 @@
+
 import streamlit as st
 from translation import tr, LANGUAGES
 from accessibility import apply_accessibility
@@ -8,7 +9,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Use the same language setting as app.py
 if "language" not in st.session_state:
     st.session_state["language"] = "English"
 
@@ -24,7 +24,6 @@ def update_language():
     st.session_state["language"] = st.session_state["language_picker"]
 
 
-# Sidebar
 st.sidebar.title("💙 FinSaathi")
 
 st.sidebar.selectbox(
@@ -34,45 +33,107 @@ st.sidebar.selectbox(
     on_change=update_language
 )
 
-# Accessibility: Larger Text, High Contrast, Read Aloud, Voice Input
+# Accessibility settings
 apply_accessibility()
 
 # Banking page
-st.title("🏦 " + t("Basic Banking"))
-st.write(t("Learn the basics of banking."))
+st.title("🏦 " + t("Banking Basics"))
 
-st.divider()
-
-st.subheader(t("What is a bank account?"))
 st.write(
-    t("A bank account helps you deposit, save and withdraw money safely.")
+    t("Learn how bank accounts, ATMs and safe banking work.")
 )
 
-st.subheader(t("Savings Account"))
-st.write(
-    t("A savings account lets you keep money in a bank and may earn interest.")
-)
-
-st.subheader(t("ATM"))
-st.write(
-    t("An ATM allows you to withdraw cash and perform certain banking services.")
-)
-
-st.subheader(t("Passbook"))
-st.write(
-    t("A passbook records deposits, withdrawals and your account balance.")
+st.info(
+    t("Never share your ATM PIN, UPI PIN, password or OTP with anyone.")
 )
 
 st.divider()
 
-st.subheader(t("Banking Safety Tips"))
-st.warning(t("Never share your ATM PIN, OTP or password."))
-st.info(t("Use official bank websites and apps."))
-st.info(t("Report unknown transactions to your bank immediately."))
+# Bank accounts
+st.header("💳 " + t("Bank Accounts"))
+
+st.write(
+    t("A bank account helps you keep your money safe, receive money "
+      "and make payments.")
+)
+
+with st.expander("📘 " + t("Types of Bank Accounts")):
+    st.markdown(
+        "- **Savings Account:** For saving money and earning interest.\n"
+        "- **Current Account:** Mainly used by businesses.\n"
+        "- **Student Account:** An account designed for eligible students.\n"
+        "- **Fixed Deposit:** Money kept in a deposit for a chosen period."
+    )
+
+with st.expander("📝 " + t("How to Open a Bank Account")):
+    st.markdown(
+        "1. Choose a bank.\n"
+        "2. Ask the bank about account eligibility and documents.\n"
+        "3. Complete the application form.\n"
+        "4. Submit the required identity and address documents.\n"
+        "5. Keep your account details secure."
+    )
 
 st.divider()
 
-st.caption(t("FinSaathi — Learn Finance. Stay Safe. 💙"))
+# ATM information
+st.header("🏧 " + t("ATM Safety"))
 
-if st.button(t("Home")):
+st.write(
+    t("An ATM lets you withdraw cash and perform certain banking tasks.")
+)
+
+st.markdown(
+    "- Keep your PIN private.\n"
+    "- Cover the keypad while entering your PIN.\n"
+    "- Do not accept help from strangers with your card or PIN.\n"
+    "- Take your card and cash before leaving.\n"
+    "- Contact your bank promptly if your card is lost."
+)
+
+st.divider()
+
+# Safe banking
+st.header("🔐 " + t("Safe Banking Rules"))
+
+st.markdown(
+    "- Never tell anyone your OTP, PIN or password.\n"
+    "- Do not click unknown banking links in SMS or messages.\n"
+    "- Use official bank websites and applications.\n"
+    "- Check transaction messages and account statements.\n"
+    "- Contact your bank through its official contact details if "
+    "you notice a suspicious transaction."
+)
+
+st.warning(
+    "🚨 If you suspect financial cyber fraud in India, contact "
+    "the national cybercrime helpline at 1930 promptly."
+)
+
+st.divider()
+
+# Knowledge check
+st.header("🧠 " + t("Quick Knowledge Check"))
+
+question = st.radio(
+    t("Should you share your OTP with a person claiming to be a bank employee?"),
+    [
+        t("Yes, if they ask politely"),
+        t("No, never share your OTP"),
+        t("Only over a phone call")
+    ],
+    key="banking_quiz"
+)
+
+if st.button(t("Check Answer"), key="banking_check"):
+    if question == t("No, never share your OTP"):
+        st.success(t("Correct! Keep your OTP private."))
+    else:
+        st.error(t("Incorrect. Never share your OTP with anyone."))
+
+st.divider()
+
+if st.button("🏠 " + t("Home"), use_container_width=True):
     st.switch_page("app.py")
+
+st.caption("💙 FinSaathi — " + t("Learn Finance. Stay Safe."))
