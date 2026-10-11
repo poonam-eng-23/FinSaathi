@@ -3,3 +3,6 @@ streamlit
 requests
 sarvamai>=0.1.24
 deep-translator
+
+SpeechRecognition
+
