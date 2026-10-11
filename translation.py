@@ -2,7 +2,6 @@
 import streamlit as st
 from sarvamai import SarvamAI
 
-# All 22 scheduled Indian languages + English
 LANGUAGE_CODES = {
     "English": "en-IN",
     "অসমীয়া": "as-IN",
@@ -40,7 +39,9 @@ def get_selected_language():
 def _translate_text(text, target_code):
     api_key = st.secrets["SARVAM_API_KEY"]
 
-    client = SarvamAI(api_subscription_key=api_key)
+    client = SarvamAI(
+        api_subscription_key=api_key
+    )
 
     response = client.text.translate(
         input=text[:2000],
@@ -53,6 +54,9 @@ def _translate_text(text, target_code):
 
 
 def tr(text):
+    if not isinstance(text, str):
+        return text
+
     language = get_selected_language()
 
     if language == "English":
@@ -64,14 +68,28 @@ def tr(text):
         return text
 
     try:
-        return _translate_text(text, target_code)
-    except Exception:
-        if not st.session_state.get("_translation_warning_shown", False):
-            st.session_state["_translation_warning_shown"] = True
-            st.warning(
-                "Translation is temporarily unavailable. "
-                "Please check the Sarvam API key, account access, "
-                "and available API credits."
+        translated = _translate_text(text, target_code)
+
+        if translated:
+            return translated
+
+        return text
+
+    except Exception as e:
+        error_message = (
+            f"{type(e).__name__}: {str(e)[:300]}"
+        )
+
+        if st.session_state.get(
+            "_last_translation_error"
+        ) != error_message:
+            st.session_state[
+                "_last_translation_error"
+            ] = error_message
+
+            st.error(
+                "Translation failed. Please check this error: "
+                + error_message
             )
 
         return text
