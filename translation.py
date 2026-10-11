@@ -1,6 +1,6 @@
 
 import streamlit as st
-from sarvamai import SarvamAI
+import requests
 
 LANGUAGE_CODES = {
     "English": "en-IN",
@@ -39,18 +39,35 @@ def get_selected_language():
 def _translate_text(text, target_code):
     api_key = st.secrets["SARVAM_API_KEY"]
 
-    client = SarvamAI(
-        api_subscription_key=api_key
+    response = requests.post(
+        "https://api.sarvam.ai/translate",
+        headers={
+            "api-subscription-key": api_key,
+            "Content-Type": "application/json",
+        },
+        json={
+            "input": text[:2000],
+            "source_language_code": "en-IN",
+            "target_language_code": target_code,
+            "model": "sarvam-translate:v1",
+        },
+        timeout=30,
     )
 
-    response = client.text.translate(
-        input=text[:2000],
-        source_language_code="en-IN",
-        target_language_code=target_code,
-        model="sarvam-translate:v1",
-    )
+    if not response.ok:
+        try:
+            details = response.json().get("error", {})
+            message = details.get("message", response.text)
+            code = details.get("code", "unknown_error")
+        except (ValueError, AttributeError):
+            message = response.text
+            code = "unknown_error"
 
-    return response.translated_text
+        raise RuntimeError(
+            f"HTTP {response.status_code} | {code} | {message}"
+        )
+
+    return response.json()["translated_text"]
 
 
 def tr(text):
@@ -69,27 +86,13 @@ def tr(text):
 
     try:
         translated = _translate_text(text, target_code)
-
-        if translated:
-            return translated
-
-        return text
+        return translated if translated else text
 
     except Exception as e:
-        error_message = (
-            f"{type(e).__name__}: {str(e)[:300]}"
-        )
+        error = str(e)[:500]
 
-        if st.session_state.get(
-            "_last_translation_error"
-        ) != error_message:
-            st.session_state[
-                "_last_translation_error"
-            ] = error_message
-
-            st.error(
-                "Translation failed. Please check this error: "
-                + error_message
-            )
+        if st.session_state.get("_last_translation_error") != error:
+            st.session_state["_last_translation_error"] = error
+            st.error(f"Translation failed: {error}")
 
         return text
