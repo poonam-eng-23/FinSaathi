@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 from translation import tr, LANGUAGES
 
@@ -118,4 +118,4 @@ if st.button("Review Practice Payment", use_container_width=True):
 
 st.markdown("---")
 st.caption(tr("FinSaathi — Learn Finance. Stay Safe."))
-```
+
