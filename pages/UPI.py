@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 from translation import tr
 
@@ -89,4 +89,4 @@ st.caption(t("FinSaathi — Learn Finance. Stay Safe. 💙"))
 
 if st.button(t("🏠 Home")):
     st.switch_page("app.py")
-```
+
