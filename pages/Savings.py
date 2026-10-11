@@ -1,4 +1,3 @@
-
 import streamlit as st
 from translation import tr, LANGUAGES
 
@@ -8,60 +7,135 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("💰 Savings")
-st.write("Learn how to save money and build good financial habits.")
+# Language selector
+st.sidebar.title("🌐 " + tr("Language Settings"))
+
+current_language = st.session_state.get("language", "English")
+if current_language not in LANGUAGES:
+    current_language = "English"
+
+selected_language = st.sidebar.selectbox(
+    "Choose your language",
+    LANGUAGES,
+    index=LANGUAGES.index(current_language),
+    key="savings_language"
+)
+
+st.session_state["language"] = selected_language
+st.query_params["language"] = selected_language
+
+# Savings page
+st.title("💰 " + tr("Smart Savings"))
+st.write(tr("Learn simple ways to save money and build good financial habits."))
 
 st.markdown("---")
 
-st.subheader("Why is saving money important?")
-st.write(
-    "Saving helps you prepare for emergencies, meet future goals, "
-    "and avoid borrowing money unnecessarily."
-)
+st.subheader("🎯 " + tr("Why Should You Save Money?"))
 
-st.subheader("Simple ways to save money")
+st.write(tr(
+    "Saving money helps you handle emergencies, achieve your goals, "
+    "pay for education, and prepare for future needs."
+))
 
-st.markdown("""
-1. Set a small savings goal.
-2. Save a part of the money you receive.
-3. Write down your expenses.
-4. Avoid unnecessary purchases.
-5. Keep your savings in a safe place, such as a bank account.
-""")
+st.subheader("💡 " + tr("Simple Saving Tips"))
 
-st.subheader("Example: Monthly Savings")
+tips = [
+    "Save a small amount regularly, even if it is only a little.",
+    "Keep your savings separate from your everyday spending money.",
+    "Make a list of your needs before spending money.",
+    "Avoid unnecessary purchases and compare prices.",
+    "Use a bank savings account to keep your money safer.",
+    "Set a clear goal, such as education or buying something important."
+]
+
+for tip in tips:
+    st.markdown("- " + tr(tip))
+
+st.markdown("---")
+
+st.subheader("🧮 " + tr("Savings Calculator"))
 
 income = st.number_input(
-    "Monthly money received (₹)",
-    min_value=0,
-    value=1000,
-    step=100
+    tr("Enter your monthly income or allowance (₹)"),
+    min_value=0.0,
+    value=5000.0,
+    step=500.0
 )
 
 expenses = st.number_input(
-    "Monthly expenses (₹)",
-    min_value=0,
-    value=700,
-    step=100
+    tr("Enter your monthly expenses (₹)"),
+    min_value=0.0,
+    value=3500.0,
+    step=500.0
 )
 
-if st.button("Calculate Savings"):
+if st.button("Calculate Savings", use_container_width=True):
     savings = income - expenses
 
     if savings > 0:
-        st.success(f"You could save ₹{savings} this month.")
-    elif savings == 0:
-        st.info("Your income and expenses are equal.")
-    else:
-        st.warning(
-            f"Your expenses exceed your income by ₹{abs(savings)}."
+        st.success(
+            tr("Your estimated monthly savings are") +
+            f": ₹{savings:,.2f}"
         )
 
-st.subheader("Savings Tips")
-st.info(
-    "Start with an amount that suits your situation. "
-    "Even small, regular savings can help over time."
-)
+        st.info(
+            tr("Your estimated savings in one year are") +
+            f": ₹{savings * 12:,.2f}"
+        )
+
+    elif savings == 0:
+        st.warning(
+            tr("Your income and expenses are equal. "
+               "Look for ways to save a small amount.")
+        )
+
+    else:
+        st.error(
+            tr("Your expenses are greater than your income. "
+               "Review your spending and make a budget.")
+        )
 
 st.markdown("---")
-st.caption("FinSaathi — Learn Finance. Stay Safe.")
+
+st.subheader("🌱 " + tr("Start a Savings Goal"))
+
+goal = st.selectbox(
+    tr("Choose a savings goal"),
+    [
+        "Education",
+        "Emergency Fund",
+        "Books and Study Materials",
+        "Household Needs",
+        "Other"
+    ]
+)
+
+target = st.number_input(
+    tr("Enter your savings target (₹)"),
+    min_value=1.0,
+    value=5000.0,
+    step=500.0,
+    key="savings_target"
+)
+
+monthly_saving = st.number_input(
+    tr("How much can you save each month? (₹)"),
+    min_value=1.0,
+    value=500.0,
+    step=100.0,
+    key="monthly_saving"
+)
+
+if st.button("Estimate Goal Time", use_container_width=True):
+    months = int((target + monthly_saving - 1) // monthly_saving)
+
+    st.info(
+        tr("For your goal") + " (" + tr(goal) + "), " +
+        tr("you may need approximately") +
+        f" {months} " +
+        tr("months to reach") +
+        f" ₹{target:,.2f}."
+    )
+
+st.markdown("---")
+st.caption(tr("FinSaathi — Learn Finance. Stay Safe."))
