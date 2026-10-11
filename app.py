@@ -1,6 +1,5 @@
 
 import streamlit as st
-from translation import tr, LANGUAGES
 
 st.set_page_config(
     page_title="FinSaathi",
@@ -8,21 +7,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Language selection
-st.sidebar.title("🌐 Language")
-
-language_options = list(LANGUAGES.keys())
-
-selected_language = st.sidebar.selectbox(
-    "Choose your language",
-    language_options,
-    key="selected_language"
-)
-
-# Store selected language
-st.session_state["language"] = selected_language
-
-# Home page
 st.title("💰 FinSaathi")
 st.subheader("Learn Finance. Stay Safe.")
 
@@ -64,7 +48,7 @@ with col1:
 
 with col2:
     st.markdown("### 🤖 AI Assistant")
-    st.write("Explore financial questions and get helpful guidance.")
+    st.write("Explore financial questions and helpful guidance.")
     if st.button("Open AI Assistant", use_container_width=True):
         st.switch_page("pages/AI_Assistant.py")
 
