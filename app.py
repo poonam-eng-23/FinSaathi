@@ -1,6 +1,6 @@
 
 import streamlit as st
-
+from translation import tr
 st.set_page_config(
     page_title="FinSaathi",
     page_icon="💙",
