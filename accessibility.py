@@ -1,74 +1,168 @@
+
+import streamlit as st
+import streamlit.components.v1 as components
+
+
+def apply_accessibility():
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("♿ Accessibility Settings")
+
+    # Larger Text
+    larger_text = st.sidebar.checkbox(
+        "🔎 Larger Text",
+        key="accessibility_larger_text"
+    )
+
+    # High Contrast Mode
+    high_contrast = st.sidebar.checkbox(
+        "🎨 High Contrast Mode",
+        key="accessibility_high_contrast"
+    )
+
+    # Apply accessibility styles
+    if larger_text:
+        st.markdown(
+            """
+            <style>
+            html, body, [class*="st-"] {
+                font-size: 20px !important;
+            }
+            p, label, li {
+                font-size: 20px !important;
+                line-height: 1.6 !important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+    if high_contrast:
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background-color: #000000 !important;
+                color: #FFFFFF !important;
+            }
+            [data-testid="stSidebar"] {
+                background-color: #000000 !important;
+            }
+            p, label, h1, h2, h3, h4, span, li {
+                color: #FFFFFF !important;
+            }
+            input, textarea, select {
+                background-color: #FFFFFF !important;
+                color: #000000 !important;
+            }
+            button {
+                border: 2px solid #FFFFFF !important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
     # Read Aloud
     st.sidebar.markdown("---")
     st.sidebar.subheader("🔊 Read Aloud")
 
-    text_to_read = st.sidebar.text_area(
-        "Enter text to hear",
-        key="accessibility_read_text",
-        placeholder="Type or paste text here..."
-    )
+    components.html(
+        """
+        <div style="font-family:Arial,sans-serif;padding:8px;">
+            <textarea id="readText"
+                placeholder="Type or paste text here..."
+                style="width:100%;height:100px;font-size:16px;
+                box-sizing:border-box;"></textarea>
 
-    # Clear the previous reading whenever the text changes
-    if (
-        "last_read_text" not in st.session_state
-        or st.session_state["last_read_text"] != text_to_read
-    ):
-        st.session_state["text_ready_to_read"] = ""
-        st.session_state["last_read_text"] = text_to_read
-
-    if st.sidebar.button("🔊 Read text aloud"):
-        if text_to_read.strip():
-            st.session_state["text_ready_to_read"] = text_to_read
-        else:
-            st.session_state["text_ready_to_read"] = ""
-            st.sidebar.warning("Please enter text first.")
-
-    # Display the player only for the currently submitted text
-    if (
-        text_to_read.strip()
-        and st.session_state.get("text_ready_to_read") == text_to_read
-    ):
-        st.sidebar.caption("Your text is ready. Press Play to listen.")
-
-        components.html(
-            f"""
-            <div style="font-family:Arial,sans-serif;padding:8px;">
-                <button id="play" style="padding:10px;font-size:16px;">
+            <div style="margin-top:8px;">
+                <button id="play"
+                    style="padding:10px;font-size:16px;">
                     ▶ Play
                 </button>
-                <button id="stop" style="padding:10px;font-size:16px;">
+                <button id="stop"
+                    style="padding:10px;font-size:16px;">
                     ■ Stop
                 </button>
-                <p id="status" aria-live="polite">Ready to play.</p>
             </div>
-            <script>
-            const textToRead = {json.dumps(text_to_read)};
-            const status = document.getElementById("status");
 
-            document.getElementById("play").onclick = () => {{
-                if (!window.speechSynthesis) {{
-                    status.textContent = "Speech is not supported.";
-                    return;
-                }}
+            <p id="status" aria-live="polite">Ready to play.</p>
+        </div>
 
+        <script>
+        const textBox = document.getElementById("readText");
+        const status = document.getElementById("status");
+
+        function stopSpeech() {
+            if ("speechSynthesis" in window) {
                 window.speechSynthesis.cancel();
+            }
+        }
 
-                const utterance = new SpeechSynthesisUtterance(textToRead);
-                utterance.lang = "en-IN";
+        textBox.addEventListener("input", () => {
+            stopSpeech();
+            status.textContent = textBox.value.trim()
+                ? "Text changed. Press Play to listen."
+                : "Text cleared. Nothing to read.";
+        });
 
-                utterance.onstart = () => status.textContent = "Speaking...";
-                utterance.onend = () => status.textContent = "Finished.";
-                utterance.onerror = (event) =>
-                    status.textContent = "Speech error: " + event.error;
+        document.getElementById("play").onclick = () => {
+            const text = textBox.value.trim();
 
-                window.speechSynthesis.speak(utterance);
-            }};
+            stopSpeech();
 
-            document.getElementById("stop").onclick = () => {{
-                if (window.speechSynthesis) window.speechSynthesis.cancel();
-                status.textContent = "Speech stopped.";
-            }};
-            </script>
-            """,
-            height=115
+            if (!text) {
+                status.textContent = "Please enter text first.";
+                return;
+            }
+
+            if (!("speechSynthesis" in window)) {
+                status.textContent = "Speech is not supported by this browser.";
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "en-IN";
+
+            utterance.onstart = () => {
+                status.textContent = "Speaking...";
+            };
+
+            utterance.onend = () => {
+                status.textContent = "Finished.";
+            };
+
+            utterance.onerror = () => {
+                status.textContent = "Speech stopped or unavailable.";
+            };
+
+            window.speechSynthesis.speak(utterance);
+        };
+
+        document.getElementById("stop").onclick = () => {
+            stopSpeech();
+            status.textContent = "Speech stopped.";
+        };
+        </script>
+        """,
+        height=240
+    )
+
+    # Voice Input
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("🎤 Voice Input")
+
+    if hasattr(st, "audio_input"):
+        audio_value = st.sidebar.audio_input(
+            "Record your question",
+            key="accessibility_voice_input"
+        )
+
+        if audio_value is not None:
+            st.sidebar.info(
+                "Recording received. Automatic speech-to-text "
+                "requires a speech recognition service."
+            )
+    else:
+        st.sidebar.caption(
+            "Voice recording is not supported in this Streamlit version."
         )
