@@ -1,254 +1,146 @@
 
 import streamlit as st
-from translation import tr, LANGUAGES
-from accessibility import apply_accessibility
+import random
 
 st.set_page_config(
-    page_title="FinSaathi - Financial Quiz",
-    page_icon="🧠",
+    page_title="Financial Literacy Quiz - FinSaathi",
+    page_icon="📝",
     layout="wide"
 )
 
-if "language" not in st.session_state:
-    st.session_state["language"] = "English"
+st.title("📝 Financial Literacy Quiz")
+st.write("Test your knowledge about banking, savings, UPI, and fraud safety!")
 
-if "language_picker" not in st.session_state:
-    st.session_state["language_picker"] = st.session_state["language"]
-
-
-def t(text):
-    return tr(text)
-
-
-def update_language():
-    st.session_state["language"] = st.session_state["language_picker"]
-
-
-st.sidebar.title("💙 FinSaathi")
-
-st.sidebar.selectbox(
-    t("Choose your language"),
-    LANGUAGES,
-    key="language_picker",
-    on_change=update_language
-)
-
-# Accessibility settings
-apply_accessibility()
-
-# Quiz page
-st.title("🧠 " + t("Financial Literacy Quiz"))
-
-st.write(
-    t("Test your knowledge about banking, savings, UPI and fraud safety.")
-)
-
-st.info(
-    t("Answer all questions and click Submit Quiz to see your score.")
-)
-
-# Questions and answers
 questions = [
     {
-        "question": "1. What should you do with your banking OTP?",
+        "question": "1. Should you share your ATM PIN with someone who calls you?",
         "options": [
-            "Share it with callers",
-            "Keep it private",
-            "Post it online",
-            "Send it to strangers"
+            "Yes, if they say they are from the bank",
+            "No, never share your PIN",
+            "Only with unknown callers"
         ],
-        "answer": "Keep it private",
-        "explanation": "An OTP is private. Never share it with anyone."
+        "answer": "No, never share your PIN",
+        "explanation": "Keep your PIN secret, even from people claiming to be bank employees."
     },
     {
-        "question": "2. What is a good saving habit?",
+        "question": "2. What should you do before making a UPI payment?",
         "options": [
-            "Spend all your money",
-            "Borrow for every purchase",
-            "Save regularly when possible",
-            "Ignore your expenses"
+            "Check the recipient and amount",
+            "Share your UPI PIN with the recipient",
+            "Approve every payment request"
         ],
-        "answer": "Save regularly when possible",
-        "explanation": "Regular saving can help you prepare for future needs."
+        "answer": "Check the recipient and amount",
+        "explanation": "Always verify the recipient and amount before approving a payment."
     },
     {
-        "question": "3. Do you need a UPI PIN to receive money?",
+        "question": "3. What is the main purpose of a budget?",
         "options": [
-            "Yes, always",
-            "No, you do not need it to receive money",
-            "Only at night",
-            "Only for small payments"
+            "To spend all your money",
+            "To plan income and expenses",
+            "To borrow more money"
         ],
-        "answer": "No, you do not need it to receive money",
-        "explanation": "A UPI PIN is used to authorise payments, not to receive money."
+        "answer": "To plan income and expenses",
+        "explanation": "A budget helps you plan spending and work towards savings goals."
     },
     {
-        "question": "4. What should you do with an unknown banking link?",
+        "question": "4. What should you do if you receive a suspicious bank link?",
         "options": [
-            "Open it immediately",
-            "Enter your PIN",
+            "Click it immediately",
             "Forward it to everyone",
-            "Avoid it and verify through official channels"
+            "Avoid clicking and verify with the bank"
         ],
-        "answer": "Avoid it and verify through official channels",
-        "explanation": "Unknown links may lead to fake websites or scams."
+        "answer": "Avoid clicking and verify with the bank",
+        "explanation": "Suspicious links may be used to steal personal or banking information."
     },
     {
-        "question": "5. What is a budget?",
+        "question": "5. Why is saving money useful?",
         "options": [
-            "A plan for managing money",
-            "A bank password",
-            "A payment PIN",
-            "A lottery ticket"
+            "It can help with future needs and emergencies",
+            "It means you must never spend money",
+            "It guarantees you will become rich"
         ],
-        "answer": "A plan for managing money",
-        "explanation": "A budget helps you plan income, expenses and savings."
+        "answer": "It can help with future needs and emergencies",
+        "explanation": "Savings can help prepare for future expenses and unexpected needs."
     },
     {
-        "question": "6. What should you do if you notice a suspicious bank transaction?",
+        "question": "6. What does OTP mean?",
         "options": [
-            "Ignore it",
-            "Share your OTP with a caller",
-            "Contact your bank using official details",
-            "Post your account details online"
+            "One-Time Password",
+            "Online Transfer Payment",
+            "Open Transaction Process"
         ],
-        "answer": "Contact your bank using official details",
-        "explanation": "Contact your bank promptly and follow its fraud-reporting guidance."
+        "answer": "One-Time Password",
+        "explanation": "An OTP is a temporary code. Never disclose it to other people."
     },
     {
-        "question": "7. Which is an essential banking safety rule?",
+        "question": "7. If you suspect financial cyber fraud in India, which number can you call?",
         "options": [
-            "Use the same PIN everywhere",
-            "Share passwords with strangers",
-            "Write your OTP in public",
-            "Keep your PIN and password private"
+            "100",
+            "1930",
+            "1098"
         ],
-        "answer": "Keep your PIN and password private",
-        "explanation": "Keep your banking credentials confidential and secure."
-    },
-    {
-        "question": "8. What should you check before making a UPI payment?",
-        "options": [
-            "Only the phone wallpaper",
-            "The recipient and amount",
-            "The weather",
-            "Nothing at all"
-        ],
-        "answer": "The recipient and amount",
-        "explanation": "Always verify the recipient and amount before authorising payment."
-    },
-    {
-        "question": "9. What is a sensible way to manage expenses?",
-        "options": [
-            "Record and review them",
-            "Never check your spending",
-            "Spend without planning",
-            "Ignore essential needs"
-        ],
-        "answer": "Record and review them",
-        "explanation": "Tracking expenses helps you understand where your money goes."
-    },
-    {
-        "question": "10. What should you do if you suspect online financial fraud in India?",
-        "options": [
-            "Share your PIN with the caller",
-            "Delete all evidence immediately",
-            "Report promptly through official channels",
-            "Ignore every transaction"
-        ],
-        "answer": "Report promptly through official channels",
-        "explanation": "Contact your bank and report suspected cyber financial fraud promptly. India's helpline is 1930."
+        "answer": "1930",
+        "explanation": "1930 is India's helpline for reporting suspected cyber financial fraud."
     }
 ]
 
-# Initialise quiz state
-if "quiz_submitted" not in st.session_state:
-    st.session_state["quiz_submitted"] = False
+if "quiz_order" not in st.session_state:
+    st.session_state.quiz_order = list(range(len(questions)))
+    random.shuffle(st.session_state.quiz_order)
 
-if "quiz_score" not in st.session_state:
-    st.session_state["quiz_score"] = 0
+if "quiz_answers" not in st.session_state:
+    st.session_state.quiz_answers = {}
 
-# Quiz form
-with st.form("financial_literacy_quiz"):
-    selected_answers = {}
+for number, question_index in enumerate(st.session_state.quiz_order):
+    question = questions[question_index]
 
-    for index, item in enumerate(questions):
-        st.subheader(item["question"])
+    st.markdown("---")
+    st.subheader(question["question"])
 
-        selected_answers[index] = st.radio(
-            "Choose one answer:",
-            item["options"],
-            index=None,
-            key=f"financial_quiz_question_{index}"
-        )
-
-        st.divider()
-
-    submitted = st.form_submit_button(
-        "✅ Submit Quiz",
-        use_container_width=True
+    selected = st.radio(
+        "Choose your answer:",
+        question["options"],
+        key=f"quiz_{question_index}"
     )
 
-    if submitted:
-        score = 0
+    st.session_state.quiz_answers[question_index] = selected
 
-        for index, item in enumerate(questions):
-            if selected_answers[index] == item["answer"]:
-                score += 1
+if st.button("Submit Quiz"):
+    score = 0
 
-        st.session_state["quiz_score"] = score
-        st.session_state["quiz_submitted"] = True
+    for question_index, selected in st.session_state.quiz_answers.items():
+        if selected == questions[question_index]["answer"]:
+            score += 1
 
-# Results
-if st.session_state["quiz_submitted"]:
-    score = st.session_state["quiz_score"]
-    percentage = score / len(questions) * 100
+    st.session_state.quiz_score = score
+    st.session_state.quiz_submitted = True
 
-    st.header("🏆 " + t("Your Quiz Result"))
+if st.session_state.get("quiz_submitted", False):
+    score = st.session_state.quiz_score
 
-    st.metric(
-        t("Your Score"),
-        f"{score} / {len(questions)}"
-    )
+    st.markdown("---")
+    st.subheader("Your Results")
+    st.metric("Your Score", f"{score} / {len(questions)}")
 
-    st.progress(percentage / 100)
-
-    st.write(f"{t('Percentage')}: {percentage:.0f}%")
-
-    if percentage >= 80:
-        st.success(
-            t("Excellent! You have a good understanding of financial safety.")
-        )
-    elif percentage >= 50:
-        st.info(
-            t("Good effort! Review the explanations and try again.")
-        )
+    if score == len(questions):
+        st.success("Excellent! You answered every question correctly.")
+    elif score >= 4:
+        st.info("Good work! Review the explanations to learn more.")
     else:
-        st.warning(
-            t("Keep learning! Review the lessons and attempt the quiz again.")
-        )
+        st.warning("Keep learning! Review the banking and fraud safety pages.")
 
-    st.subheader("📘 " + t("Answer Review"))
+    st.subheader("Correct Answers and Explanations")
 
-    for index, item in enumerate(questions):
-        st.markdown(f"**{item['question']}**")
-        st.write(f"{t('Correct answer')}: {item['answer']}")
-        st.caption(item["explanation"])
+    for question in questions:
+        st.write(f"**{question['question']}**")
+        st.write(f"Correct answer: {question['answer']}")
+        st.caption(question["explanation"])
 
-    if st.button("🔄 " + t("Try Again"), use_container_width=True):
-        st.session_state["quiz_submitted"] = False
-        st.session_state["quiz_score"] = 0
-
-        for index in range(len(questions)):
-            key = f"financial_quiz_question_{index}"
+    if st.button("Try Again"):
+        for key in ["quiz_order", "quiz_answers", "quiz_score", "quiz_submitted"]:
             if key in st.session_state:
                 del st.session_state[key]
-
         st.rerun()
 
-st.divider()
-
-if st.button("🏠 " + t("Home"), use_container_width=True):
-    st.switch_page("app.py")
-
-st.caption("💙 FinSaathi — " + t("Learn Finance. Stay Safe."))
+st.markdown("---")
+st.caption("FinSaathi — Learn Finance. Stay Safe.")
