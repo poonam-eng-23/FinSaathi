@@ -14,6 +14,7 @@ def apply_accessibility():
     st.sidebar.toggle("Larger Text", key="accessibility_mode")
     st.sidebar.toggle("High Contrast Mode", key="high_contrast_mode")
 
+    # Larger Text
     if st.session_state["accessibility_mode"]:
         st.markdown(
             """
@@ -27,6 +28,9 @@ def apply_accessibility():
                 min-height: 48px !important;
                 font-size: 1.05rem !important;
             }
+            .stApp input, .stApp textarea {
+                font-size: 1.1rem !important;
+            }
             *:focus-visible {
                 outline: 3px solid #005fcc !important;
                 outline-offset: 3px !important;
@@ -36,6 +40,7 @@ def apply_accessibility():
             unsafe_allow_html=True
         )
 
+    # High Contrast Mode
     if st.session_state["high_contrast_mode"]:
         st.markdown(
             """
@@ -83,13 +88,22 @@ def apply_accessibility():
     if st.sidebar.button("🔊 Read text aloud"):
         if text_to_read.strip():
             st.session_state["text_ready_to_read"] = text_to_read
+            st.session_state["read_request_id"] = (
+                st.session_state.get("read_request_id", 0) + 1
+            )
         else:
+            st.session_state.pop("text_ready_to_read", None)
+            st.session_state["read_request_id"] = (
+                st.session_state.get("read_request_id", 0) + 1
+            )
             st.sidebar.warning("Please enter some text first.")
 
-    if st.session_state.get("text_ready_to_read"):
-        speech_text = json.dumps(
-            st.session_state["text_ready_to_read"]
-        )
+    # Show the player only when the current text is non-empty
+    current_text = st.session_state.get("accessibility_read_text", "")
+
+    if current_text.strip() and st.session_state.get("text_ready_to_read") == current_text:
+        speech_text = json.dumps(current_text)
+        request_id = st.session_state.get("read_request_id", 0)
 
         components.html(
             f"""
@@ -107,9 +121,10 @@ def apply_accessibility():
 
             <script>
             const textToRead = {speech_text};
+            const requestId = {request_id};
             const status = document.getElementById("status");
 
-            function speakText() {{
+            document.getElementById("play").onclick = function() {{
                 if (!window.speechSynthesis ||
                     !window.SpeechSynthesisUtterance) {{
                     status.textContent =
@@ -124,7 +139,7 @@ def apply_accessibility():
 
                 if (!voices.length) {{
                     status.textContent =
-                        "No speech voices available. Check your browser's speech settings and reload the page.";
+                        "No speech voices available. Check your browser settings.";
                     return;
                 }}
 
@@ -135,7 +150,6 @@ def apply_accessibility():
 
                 const voice =
                     voices.find(v => v.lang === "en-IN") ||
-                    voices.find(v => v.lang.startsWith("en-")) ||
                     voices.find(v => v.lang.startsWith("en"));
 
                 if (voice) {{
@@ -151,26 +165,18 @@ def apply_accessibility():
                 }};
 
                 utterance.onerror = (event) => {{
-                    status.textContent =
-                        "Speech error: " + event.error +
-                        ". Try reloading the page or using Microsoft Edge.";
+                    status.textContent = "Speech error: " + event.error;
                 }};
 
                 synth.speak(utterance);
-            }}
+            }};
 
-            document.getElementById("play").onclick = speakText;
-
-            document.getElementById("stop").onclick = () => {{
+            document.getElementById("stop").onclick = function() {{
                 if (window.speechSynthesis) {{
                     window.speechSynthesis.cancel();
                 }}
                 status.textContent = "Speech stopped.";
             }};
-
-            if (window.speechSynthesis) {{
-                window.speechSynthesis.onvoiceschanged = () => {{}};
-            }}
             </script>
             """,
             height=125
