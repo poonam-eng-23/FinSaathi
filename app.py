@@ -1,6 +1,7 @@
-
+```python
 import streamlit as st
 from translation import tr
+
 st.set_page_config(
     page_title="FinSaathi",
     page_icon="💙",
@@ -31,24 +32,23 @@ LANGUAGES = {
     "سنڌي — Sindhi": "Sindhi",
     "தமிழ் — Tamil": "Tamil",
     "తెలుగు — Telugu": "Telugu",
-    "اردو — Urdu": "Urdu",
+    "اردू — Urdu": "Urdu",
 }
 
-# Language selection
+# Language selector
 st.sidebar.title("🌐 Language / ಭಾಷೆ")
 
 language_names = list(LANGUAGES.keys())
 
 current_language = st.session_state.get(
-    "selected_language",
-    "English"
+    "selected_language", "English"
 )
 
 if current_language not in language_names:
     current_language = "English"
 
 selected_language = st.sidebar.selectbox(
-    "Choose your language",
+    tr("Choose your language"),
     language_names,
     index=language_names.index(current_language),
     key="language_selector"
@@ -56,98 +56,102 @@ selected_language = st.sidebar.selectbox(
 
 st.session_state["selected_language"] = selected_language
 
-# Keep compatibility with your existing pages.
-# The existing page translations support English,
-# Kannada, Hindi and Marathi.
-supported_languages = ["English", "Kannada", "Hindi", "Marathi"]
+# Keep compatibility with existing pages
+supported_languages = [
+    "English", "Kannada", "Hindi", "Marathi"
+]
 
-if LANGUAGES[selected_language] in supported_languages:
-    st.session_state["language_code"] = LANGUAGES[selected_language]
+language_name = LANGUAGES[selected_language]
+
+if language_name in supported_languages:
+    st.session_state["language_code"] = language_name
 else:
     st.session_state["language_code"] = "English"
 
 # Home page
 st.title("💙 FinSaathi")
-st.subheader("Learn Finance. Stay Safe.")
+st.subheader(tr("Learn Finance. Stay Safe."))
 
 st.write(
-    "Your friendly guide to banking, savings, budgeting "
-    "and digital payment safety."
+    tr(
+        "Your friendly guide to banking, savings, "
+        "budgeting and digital payment safety."
+    )
 )
 
 st.info(
-    "Choose a topic below to learn about managing money "
-    "and staying safe from financial fraud."
+    tr(
+        "Choose a topic below to learn about managing "
+        "money and staying safe from financial fraud."
+    )
 )
 
 st.divider()
 
-st.header("📚 Learn About Finance")
+st.header(tr("📚 Learn About Finance"))
 
 col1, col2 = st.columns(2)
 
 with col1:
     st.page_link(
         "pages/1_Banking.py",
-        label="🏦 Banking Basics",
+        label=tr("🏦 Banking Basics"),
         icon="🏦"
     )
 
     st.page_link(
         "pages/Savings.py",
-        label="💰 Savings",
+        label=tr("💰 Savings"),
         icon="💰"
     )
 
     st.page_link(
         "pages/UPI.py",
-        label="📱 UPI Payments",
+        label=tr("📱 UPI Payments"),
         icon="📱"
     )
 
     st.page_link(
         "pages/Budget.py",
-        label="📊 Budget Planner",
+        label=tr("📊 Budget Planner"),
         icon="📊"
     )
 
 with col2:
     st.page_link(
         "pages/Fraud_safety.py",
-        label="🛡️ Fraud Safety",
+        label=tr("🛡️ Fraud Safety"),
         icon="🛡️"
     )
 
     st.page_link(
         "pages/AI_Assistant.py",
-        label="🤖 Saathi Assistant",
+        label=tr("🤖 Saathi Assistant"),
         icon="🤖"
     )
 
     st.page_link(
         "pages/Quiz.py",
-        label="📝 Financial Quiz",
+        label=tr("📝 Financial Quiz"),
         icon="📝"
     )
 
 st.divider()
 
-st.subheader("💡 Financial Safety Tip")
+st.subheader(tr("💡 Financial Safety Tip"))
 
 st.write(
-    "Never share your OTP, ATM PIN, UPI PIN or banking "
-    "password with anyone. Banks will not ask you to "
-    "share these secrets over a call or message."
+    tr(
+        "Never share your OTP, ATM PIN, UPI PIN or banking "
+        "password with anyone. Banks will not ask you to "
+        "share these secrets over a call or message."
+    )
 )
 
 st.caption(
-    "FinSaathi is an educational project. It does not "
-    "replace advice from a qualified financial professional."
-)
-
-if LANGUAGES[selected_language] not in supported_languages:
-    st.warning(
-        "Your selected language is available in the menu, "
-        "but its page content is not translated yet. "
-        "Automatic translation needs to be connected separately."
+    tr(
+        "FinSaathi is an educational project. It does not "
+        "replace advice from a qualified financial professional."
     )
+)
+```
