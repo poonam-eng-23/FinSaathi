@@ -8,9 +8,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# Keep the selected language across page navigation
 if "language" not in st.session_state:
     st.session_state["language"] = "English"
+
+if "language_picker" not in st.session_state:
+    st.session_state["language_picker"] = st.session_state["language"]
 
 
 def update_language():
@@ -18,16 +20,10 @@ def update_language():
 
 
 def t(text):
-    """Translate app text into the selected language."""
     return tr(text)
 
 
-# Sidebar
 st.sidebar.title("💙 FinSaathi")
-st.sidebar.caption(t("Learn Finance. Stay Safe."))
-
-if "language_picker" not in st.session_state:
-    st.session_state["language_picker"] = st.session_state["language"]
 
 st.sidebar.selectbox(
     t("Choose your language"),
@@ -36,7 +32,6 @@ st.sidebar.selectbox(
     on_change=update_language
 )
 
-# Navigation
 st.sidebar.markdown("---")
 st.sidebar.subheader(t("Menu"))
 
@@ -52,15 +47,15 @@ pages = [
 ]
 
 for emoji, label, path in pages:
-    st.sidebar.page_link(path, label=f"{emoji} {t(label)}")
+    st.sidebar.page_link(
+        path,
+        label=f"{emoji} {t(label)}"
+    )
 
-# Home page
 st.title("💙 FinSaathi")
-
 st.subheader(t("Learn Finance. Stay Safe."))
 
 st.markdown("---")
-
 st.header(t("Welcome to FinSaathi!"))
 
 st.write(
@@ -71,34 +66,20 @@ st.write(
 )
 
 features = [
-    (
-        "🏦", "Banking", "pages/1_Banking.py",
-        "Learn about bank accounts, ATMs, and banking services."
-    ),
-    (
-        "💰", "Savings", "pages/Savings.py",
-        "Discover simple ways to save money."
-    ),
-    (
-        "📱", "UPI", "pages/UPI.py",
-        "Learn how to use UPI safely."
-    ),
-    (
-        "🛡️", "Fraud Safety", "pages/Fraud_Safety.py",
-        "Recognize suspicious messages and avoid online scams."
-    ),
-    (
-        "🤖", "AI Assistant", "pages/AI_Assistant.py",
-        "Get help with basic financial questions."
-    ),
-    (
-        "📊", "Budget", "pages/Budget.py",
-        "Plan your income, expenses, and savings."
-    ),
-    (
-        "📝", "Quiz", "pages/Quiz.py",
-        "Test your financial knowledge."
-    ),
+    ("🏦", "Banking", "pages/1_Banking.py",
+     "Learn about bank accounts, ATMs, and banking services."),
+    ("💰", "Savings", "pages/Savings.py",
+     "Discover simple ways to save money."),
+    ("📱", "UPI", "pages/UPI.py",
+     "Learn how to use UPI safely."),
+    ("🛡️", "Fraud Safety", "pages/Fraud_Safety.py",
+     "Recognize suspicious messages and avoid online scams."),
+    ("🤖", "AI Assistant", "pages/AI_Assistant.py",
+     "Get help with basic financial questions."),
+    ("📊", "Budget", "pages/Budget.py",
+     "Plan your income, expenses, and savings."),
+    ("📝", "Quiz", "pages/Quiz.py",
+     "Test your financial knowledge."),
 ]
 
 for start in range(0, len(features), 2):
