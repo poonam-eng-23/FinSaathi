@@ -1,234 +1,113 @@
 
 import streamlit as st
 from translation import tr, LANGUAGES
-from accessibility import apply_accessibility
 
 st.set_page_config(
-    page_title="FinSaathi - Budget",
-    page_icon="📊",
+    page_title="Budget Planner - FinSaathi",
+    page_icon="💰",
     layout="wide"
 )
 
-if "language" not in st.session_state:
-    st.session_state["language"] = "English"
+st.title("💰 Budget Planner")
+st.write("Plan your monthly money and understand where it goes.")
 
-if "language_picker" not in st.session_state:
-    st.session_state["language_picker"] = st.session_state["language"]
+st.markdown("---")
 
-
-def t(text):
-    return tr(text)
-
-
-def update_language():
-    st.session_state["language"] = st.session_state["language_picker"]
-
-
-st.sidebar.title("💙 FinSaathi")
-
-st.sidebar.selectbox(
-    t("Choose your language"),
-    LANGUAGES,
-    key="language_picker",
-    on_change=update_language
-)
-
-# Accessibility settings
-apply_accessibility()
-
-# Budget page
-st.title("📊 " + t("My Monthly Budget"))
-
-st.write(
-    t("Plan your money, manage expenses and set realistic savings goals.")
-)
-
-st.info(
-    t("A budget is a plan for how you will use your available money.")
-)
-
-st.divider()
-
-# Monthly income
-st.header("💰 " + t("Monthly Income"))
+st.subheader("Enter Your Monthly Income")
 
 income = st.number_input(
-    t("Enter your monthly income or allowance (₹)"),
-    min_value=0,
-    max_value=10000000,
-    value=5000,
-    step=500,
-    key="budget_income"
+    "Monthly income or allowance (₹)",
+    min_value=0.0,
+    value=5000.0,
+    step=500.0
 )
 
-st.divider()
+st.subheader("Choose a Budget Plan")
 
-# Budget allocation
-st.header("🧮 " + t("Choose a Budget Plan"))
-
-plan = st.selectbox(
-    t("Budget allocation"),
+budget_plan = st.selectbox(
+    "Select your preferred plan",
     [
-        "50/30/20",
-        "60/20/20",
-        "70/20/10"
-    ],
-    key="budget_plan"
+        "50/30/20 — Needs, Wants, Savings",
+        "60/20/20 — Needs, Wants, Savings",
+        "70/20/10 — Needs, Wants, Savings"
+    ]
 )
 
-if plan == "50/30/20":
-    needs_pct = 50
-    wants_pct = 30
-    savings_pct = 20
-elif plan == "60/20/20":
-    needs_pct = 60
-    wants_pct = 20
-    savings_pct = 20
+if budget_plan.startswith("50"):
+    needs_percent, wants_percent, savings_percent = 50, 30, 20
+elif budget_plan.startswith("60"):
+    needs_percent, wants_percent, savings_percent = 60, 20, 20
 else:
-    needs_pct = 70
-    wants_pct = 20
-    savings_pct = 10
+    needs_percent, wants_percent, savings_percent = 70, 20, 10
 
-needs_amount = income * needs_pct / 100
-wants_amount = income * wants_pct / 100
-savings_amount = income * savings_pct / 100
+needs = income * needs_percent / 100
+wants = income * wants_percent / 100
+savings = income * savings_percent / 100
+
+st.markdown("---")
+st.subheader("Your Suggested Monthly Budget")
 
 col1, col2, col3 = st.columns(3)
 
-with col1:
-    st.metric(
-        t("Needs"),
-        f"₹{needs_amount:,.2f}",
-        f"{needs_pct}%"
-    )
+col1.metric("Needs", f"₹{needs:.2f}")
+col2.metric("Wants", f"₹{wants:.2f}")
+col3.metric("Savings", f"₹{savings:.2f}")
 
-with col2:
-    st.metric(
-        t("Wants"),
-        f"₹{wants_amount:,.2f}",
-        f"{wants_pct}%"
-    )
+st.write(f"**Needs:** {needs_percent}% for essential expenses.")
+st.write(f"**Wants:** {wants_percent}% for non-essential spending.")
+st.write(f"**Savings:** {savings_percent}% towards your savings goals.")
 
-with col3:
-    st.metric(
-        t("Savings"),
-        f"₹{savings_amount:,.2f}",
-        f"{savings_pct}%"
-    )
-
-st.caption(
-    t("These percentages are examples. Adjust them to your actual "
-      "income, essential expenses and circumstances.")
-)
-
-st.divider()
-
-# Expense tracker
-st.header("🧾 " + t("Expense Planner"))
-
-st.write(
-    t("Enter an expense to see how it compares with your available budget.")
-)
+st.markdown("---")
+st.subheader("Track Your Expenses")
 
 expense_name = st.text_input(
-    t("Expense name"),
-    placeholder="Example: Travel or books",
-    key="budget_expense_name"
-)
-
-expense_category = st.selectbox(
-    t("Expense category"),
-    [
-        "Needs",
-        "Wants",
-        "Savings",
-        "Other"
-    ],
-    key="budget_expense_category"
+    "Expense name",
+    placeholder="For example: Bus fare"
 )
 
 expense_amount = st.number_input(
-    t("Expense amount (₹)"),
-    min_value=0,
-    max_value=10000000,
-    value=0,
-    step=100,
-    key="budget_expense_amount"
+    "Expense amount (₹)",
+    min_value=0.0,
+    value=0.0,
+    step=10.0
 )
 
 if "budget_expenses" not in st.session_state:
-    st.session_state["budget_expenses"] = []
+    st.session_state.budget_expenses = []
 
-if st.button(t("Add Expense"), use_container_width=True):
-    if not expense_name.strip():
-        st.warning(t("Please enter an expense name."))
-    elif expense_amount <= 0:
-        st.warning(t("Please enter an amount greater than zero."))
-    else:
-        st.session_state["budget_expenses"].append({
-            "name": expense_name.strip(),
-            "category": expense_category,
-            "amount": float(expense_amount)
-        })
-        st.success(t("Expense added successfully."))
-
-expenses = st.session_state["budget_expenses"]
-
-if expenses:
-    st.subheader(t("Your Expenses"))
-
-    total_expenses = sum(item["amount"] for item in expenses)
-
-    st.metric(
-        t("Total recorded expenses"),
-        f"₹{total_expenses:,.2f}"
-    )
-
-    for index, item in enumerate(expenses):
-        expense_col, delete_col = st.columns([4, 1])
-
-        with expense_col:
-            st.write(
-                f"**{item['name']}** — {item['category']}: "
-                f"₹{item['amount']:,.2f}"
-            )
-
-        with delete_col:
-            if st.button("🗑️", key=f"delete_budget_expense_{index}"):
-                st.session_state["budget_expenses"].pop(index)
-                st.rerun()
-
-    remaining = income - total_expenses
-
-    st.metric(
-        t("Income remaining after recorded expenses"),
-        f"₹{remaining:,.2f}"
-    )
-
-    if remaining < 0:
-        st.warning(
-            t("Your recorded expenses exceed your entered income. "
-              "Review your budget.")
+if st.button("Add Expense"):
+    if expense_name.strip() and expense_amount > 0:
+        st.session_state.budget_expenses.append(
+            {
+                "name": expense_name.strip(),
+                "amount": expense_amount
+            }
         )
-else:
-    st.caption(t("No expenses added yet."))
+        st.success("Expense added!")
+    else:
+        st.warning("Enter an expense name and an amount greater than zero.")
 
-st.divider()
-
-# Budget tips
-st.header("💡 " + t("Budgeting Tips"))
-
-st.markdown(
-    "- Write down your income and regular expenses.\n"
-    "- Prioritise food, housing, education and other essential needs.\n"
-    "- Set realistic savings goals.\n"
-    "- Review spending before making non-essential purchases.\n"
-    "- Avoid borrowing money without understanding the repayment terms."
+total_expenses = sum(
+    item["amount"] for item in st.session_state.budget_expenses
 )
 
-st.divider()
+st.subheader("Expense Summary")
+st.metric("Total expenses entered", f"₹{total_expenses:.2f}")
+st.metric("Income left after entered expenses", f"₹{income - total_expenses:.2f}")
 
-if st.button("🏠 " + t("Home"), use_container_width=True):
-    st.switch_page("app.py")
+if st.session_state.budget_expenses:
+    for index, item in enumerate(st.session_state.budget_expenses):
+        st.write(f"{index + 1}. {item['name']} — ₹{item['amount']:.2f}")
 
-st.caption("💙 FinSaathi — " + t("Learn Finance. Stay Safe."))
+    if st.button("Clear All Expenses"):
+        st.session_state.budget_expenses = []
+        st.rerun()
+else:
+    st.info("No expenses have been added yet.")
+
+st.caption(
+    "Budget percentages are suggestions. Adjust your plan to suit your needs."
+)
+
+st.markdown("---")
+st.caption("FinSaathi — Learn Finance. Stay Safe.")
