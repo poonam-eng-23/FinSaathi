@@ -1,59 +1,121 @@
-
+```python
 import streamlit as st
 from translation import tr, LANGUAGES
 
 st.set_page_config(
-    page_title="UPI - FinSaathi",
+    page_title="UPI Payments - FinSaathi",
     page_icon="📱",
     layout="wide"
 )
 
-st.title("📱 UPI Payments")
-st.write("Learn how to make digital payments safely.")
+# Language selector
+st.sidebar.title("🌐 " + tr("Language Settings"))
+
+current_language = st.session_state.get("language", "English")
+if current_language not in LANGUAGES:
+    current_language = "English"
+
+selected_language = st.sidebar.selectbox(
+    "Choose your language",
+    LANGUAGES,
+    index=LANGUAGES.index(current_language),
+    key="upi_language"
+)
+
+st.session_state["language"] = selected_language
+st.query_params["language"] = selected_language
+
+# UPI page
+st.title("📱 " + tr("UPI Payments"))
+st.write(tr("Learn how to make digital payments safely."))
 
 st.markdown("---")
 
-st.subheader("What is UPI?")
-st.write(
-    "UPI stands for Unified Payments Interface. "
-    "It allows people to send and receive money digitally."
-)
+st.subheader("💳 " + tr("What is UPI?"))
+st.write(tr(
+    "UPI stands for Unified Payments Interface. It lets you send and "
+    "receive money instantly using a supported payment app."
+))
 
-st.subheader("How to make a UPI payment")
+st.subheader("✅ " + tr("Safe UPI Rules"))
 
-st.markdown("""
-1. Open your official UPI payment app.
-2. Choose the person or merchant you want to pay.
-3. Enter the amount.
-4. Check the recipient's details carefully.
-5. Enter your UPI PIN only inside the official payment app to authorize a payment.
-6. Check the transaction status.
-""")
+rules = [
+    "Never share your UPI PIN with anyone.",
+    "You do not need to enter your PIN to receive money.",
+    "Check the receiver's name before making a payment.",
+    "Never click suspicious payment links.",
+    "Do not approve unknown payment requests.",
+    "Contact your bank immediately if you notice an unauthorised transaction."
+]
+
+for rule in rules:
+    st.markdown("- " + tr(rule))
 
 st.warning(
-    "Never share your UPI PIN or OTP with anyone. "
-    "You do not need to enter your UPI PIN to receive money."
+    "⚠️ " + tr(
+        "Your UPI PIN is secret. Never share it with anyone, "
+        "including people claiming to be bank employees."
+    )
 )
-
-st.subheader("Practice: Identify Safe or Unsafe Actions")
-
-question = st.radio(
-    "Someone calls and asks you to share your UPI PIN. What should you do?",
-    [
-        "Share it because the caller says they are from the bank",
-        "Never share it and end the call",
-        "Send it by message instead"
-    ],
-    index=None
-)
-
-if st.button("Check Answer"):
-    if question == "Never share it and end the call":
-        st.success("Correct! Keep your UPI PIN secret.")
-    elif question is None:
-        st.info("Please select an answer first.")
-    else:
-        st.error("Incorrect. Never share your UPI PIN.")
 
 st.markdown("---")
-st.caption("FinSaathi — Learn Finance. Stay Safe.")
+
+st.subheader("🧠 " + tr("Scam or Safe?"))
+st.write(tr("Read each situation and choose the safest answer."))
+
+question = st.radio(
+    tr("Someone says you must enter your UPI PIN to receive a prize. What should you do?"),
+    [
+        tr("Enter the PIN immediately"),
+        tr("Do not enter the PIN; it may be a scam"),
+        tr("Share the PIN with the caller")
+    ],
+    index=None,
+    key="upi_scam_question"
+)
+
+if st.button("Check Answer", use_container_width=True):
+    if question is None:
+        st.info(tr("Please select an answer first."))
+    elif question == tr("Do not enter the PIN; it may be a scam"):
+        st.success(
+            "✅ " + tr(
+                "Correct! Never enter your UPI PIN to receive a prize or money."
+            )
+        )
+    else:
+        st.error(
+            "❌ " + tr(
+                "Incorrect. Never share your UPI PIN or enter it for an unknown request."
+            )
+        )
+
+st.markdown("---")
+
+st.subheader("🧪 " + tr("Practice Payment Calculator"))
+st.caption(
+    tr("This is only a demonstration. It does not transfer real money.")
+)
+
+amount = st.number_input(
+    tr("Enter a practice payment amount (₹)"),
+    min_value=1,
+    max_value=100000,
+    value=100,
+    step=50
+)
+
+if st.button("Review Practice Payment", use_container_width=True):
+    st.info(
+        tr("Practice amount") + f": ₹{amount:,}"
+    )
+    st.write(
+        "🔒 " + tr(
+            "Before any real payment, verify the recipient and amount "
+            "in your official payment app."
+        )
+    )
+
+st.markdown("---")
+st.caption(tr("FinSaathi — Learn Finance. Stay Safe."))
+```
