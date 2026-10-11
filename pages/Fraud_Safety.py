@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 from translation import tr, LANGUAGES
 
@@ -153,4 +153,4 @@ for step in steps:
 
 st.markdown("---")
 st.caption(tr("FinSaathi — Learn Finance. Stay Safe."))
-```
+
