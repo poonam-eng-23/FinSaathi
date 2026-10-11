@@ -1,6 +1,6 @@
-
 import streamlit as st
-from translation import tr
+from translation import tr, LANGUAGES
+from accessibility import apply_accessibility
 
 st.set_page_config(
     page_title="FinSaathi - Banking",
@@ -12,23 +12,20 @@ st.set_page_config(
 if "language" not in st.session_state:
     st.session_state["language"] = "English"
 
+if "language_picker" not in st.session_state:
+    st.session_state["language_picker"] = st.session_state["language"]
+
 
 def t(text):
     return tr(text)
 
 
-# Sidebar language selector
-st.sidebar.title("💙 FinSaathi")
-
-from translation import LANGUAGES
-
-if "language_picker" not in st.session_state:
-    st.session_state["language_picker"] = st.session_state["language"]
-
-
 def update_language():
     st.session_state["language"] = st.session_state["language_picker"]
 
+
+# Sidebar
+st.sidebar.title("💙 FinSaathi")
 
 st.sidebar.selectbox(
     t("Choose your language"),
@@ -36,6 +33,9 @@ st.sidebar.selectbox(
     key="language_picker",
     on_change=update_language
 )
+
+# Accessibility: Larger Text, High Contrast, Read Aloud, Voice Input
+apply_accessibility()
 
 # Banking page
 st.title("🏦 " + t("Basic Banking"))
