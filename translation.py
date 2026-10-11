@@ -1,6 +1,8 @@
 
 import streamlit as st
 
+LANGUAGES = ["English", "ಕನ್ನಡ", "हिन्दी", "मराठी"]
+
 TRANSLATIONS = {
     "ಕನ್ನಡ": {
         "Home": "ಮುಖಪುಟ",
@@ -20,6 +22,12 @@ TRANSLATIONS = {
         "Income": "ಆದಾಯ",
         "Expenses": "ವೆಚ್ಚಗಳು",
         "Savings Goal": "ಉಳಿತಾಯದ ಗುರಿ",
+        "Welcome to FinSaathi!": "ಫಿನ್‌ಸಾಥಿಗೆ ಸ್ವಾಗತ!",
+        "Banking Basics": "ಬ್ಯಾಂಕಿಂಗ್ ಮೂಲಭೂತಗಳು",
+        "UPI Safety": "ಯುಪಿಐ ಸುರಕ್ಷತೆ",
+        "Budget Planner": "ಬಜೆಟ್ ಯೋಜಕ",
+        "Explore": "ವೀಕ್ಷಿಸಿ",
+        "Financial Knowledge Quiz": "ಹಣಕಾಸಿನ ಜ್ಞಾನ ರಸಪ್ರಶ್ನೆ",
     },
     "हिन्दी": {
         "Home": "होम",
@@ -39,6 +47,12 @@ TRANSLATIONS = {
         "Income": "आय",
         "Expenses": "खर्च",
         "Savings Goal": "बचत का लक्ष्य",
+        "Welcome to FinSaathi!": "फिनसाथी में आपका स्वागत है!",
+        "Banking Basics": "बैंकिंग की मूल बातें",
+        "UPI Safety": "UPI सुरक्षा",
+        "Budget Planner": "बजट योजनाकार",
+        "Explore": "देखें",
+        "Financial Knowledge Quiz": "वित्तीय ज्ञान प्रश्नोत्तरी",
     },
     "मराठी": {
         "Home": "मुख्यपृष्ठ",
@@ -58,6 +72,12 @@ TRANSLATIONS = {
         "Income": "उत्पन्न",
         "Expenses": "खर्च",
         "Savings Goal": "बचतीचे उद्दिष्ट",
+        "Welcome to FinSaathi!": "फिनसाथीमध्ये स्वागत आहे!",
+        "Banking Basics": "बँकिंगची मूलतत्त्वे",
+        "UPI Safety": "UPI सुरक्षा",
+        "Budget Planner": "अर्थसंकल्प नियोजक",
+        "Explore": "पहा",
+        "Financial Knowledge Quiz": "आर्थिक ज्ञान प्रश्नमंजुषा",
     },
 }
 
@@ -68,4 +88,6 @@ def get_selected_language():
 
 def tr(text):
     language = get_selected_language()
+    if language == "English":
+        return text
     return TRANSLATIONS.get(language, {}).get(text, text)
