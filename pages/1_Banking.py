@@ -1,6 +1,6 @@
 
 import streamlit as st
-from translation import tr, LANGUAGES
+from translation import tr
 
 st.set_page_config(
     page_title="Banking - FinSaathi",
@@ -8,47 +8,56 @@ st.set_page_config(
     layout="wide"
 )
 
-language_options = list(LANGUAGES.keys())
-language = st.session_state.get("language", language_options[0])
-
-st.title("🏦 Banking Basics")
-st.write("Learn how to use banking services safely.")
+st.title("🏦 " + tr("Banking Basics"))
+st.write(tr("Learn how to use banking services safely."))
 
 st.markdown("---")
 
-st.subheader("1. What is a Bank Account?")
+st.subheader(tr("1. What is a Bank Account?"))
 st.write(
-    "A bank account helps you keep your money safe, "
-    "receive money, save money, and make payments."
+    tr(
+        "A bank account helps you keep your money safe, receive money, "
+        "save money, and make payments."
+    )
 )
 
-st.subheader("2. What is an ATM?")
+st.subheader(tr("2. What is an ATM?"))
 st.write(
-    "An ATM allows you to withdraw cash and perform "
-    "some banking activities using your ATM card and PIN."
+    tr(
+        "An ATM allows you to withdraw cash and perform some banking "
+        "activities using your ATM card and PIN."
+    )
 )
 
 st.warning(
-    "Never share your ATM PIN, password, or OTP with anyone."
+    "⚠️ " + tr("Never share your ATM PIN, password, or OTP with anyone.")
 )
 
-st.subheader("3. Types of Bank Accounts")
+st.subheader(tr("3. Types of Bank Accounts"))
 
-st.markdown("""
-- **Savings Account:** For saving money and earning interest.
-- **Current Account:** Commonly used by businesses.
-- **Fixed Deposit (FD):** Money deposited for a fixed period.
-- **Recurring Deposit (RD):** Money saved regularly over time.
-""")
+st.markdown(
+    "\n".join([
+        "- **" + tr("Savings Account") + ":** " +
+        tr("For saving money and earning interest."),
+        "- **" + tr("Current Account") + ":** " +
+        tr("Commonly used by businesses."),
+        "- **" + tr("Fixed Deposit (FD)") + ":** " +
+        tr("Money deposited for a fixed period."),
+        "- **" + tr("Recurring Deposit (RD)") + ":** " +
+        tr("Money saved regularly over time.")
+    ])
+)
 
-st.subheader("4. Safe Banking Tips")
+st.subheader(tr("4. Safe Banking Tips"))
 
-st.markdown("""
-- Keep your ATM card and PIN safe.
-- Never share OTPs or passwords.
-- Use official banking apps and websites.
-- Contact your bank immediately if you notice suspicious activity.
-""")
+st.markdown(
+    "\n".join([
+        "- " + tr("Keep your ATM card and PIN safe."),
+        "- " + tr("Never share OTPs or passwords."),
+        "- " + tr("Use official banking apps and websites."),
+        "- " + tr("Contact your bank immediately if you notice suspicious activity.")
+    ])
+)
 
 st.markdown("---")
-st.caption("FinSaathi — Learn Finance. Stay Safe.")
+st.caption(tr("FinSaathi — Learn Finance. Stay Safe."))
