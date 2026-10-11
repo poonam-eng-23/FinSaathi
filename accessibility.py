@@ -5,49 +5,28 @@ import streamlit.components.v1 as components
 
 
 def apply_accessibility():
-
-    if "accessibility_mode" not in st.session_state:
-        st.session_state["accessibility_mode"] = False
-
-    if "high_contrast_mode" not in st.session_state:
-        st.session_state["high_contrast_mode"] = False
+    st.session_state.setdefault("accessibility_mode", False)
+    st.session_state.setdefault("high_contrast_mode", False)
 
     st.sidebar.markdown("---")
     st.sidebar.subheader("♿ Accessibility")
 
-    st.sidebar.toggle(
-        "Larger Text",
-        key="accessibility_mode"
-    )
+    st.sidebar.toggle("Larger Text", key="accessibility_mode")
+    st.sidebar.toggle("High Contrast Mode", key="high_contrast_mode")
 
-    st.sidebar.toggle(
-        "High Contrast Mode",
-        key="high_contrast_mode"
-    )
-
-    # Larger text
     if st.session_state["accessibility_mode"]:
         st.markdown(
             """
             <style>
-            .stApp p,
-            .stApp li,
-            .stApp label,
+            .stApp p, .stApp li, .stApp label,
             .stApp .stMarkdown {
                 font-size: 1.15rem !important;
                 line-height: 1.7 !important;
             }
-
             .stApp button {
                 min-height: 48px !important;
                 font-size: 1.05rem !important;
             }
-
-            .stApp input,
-            .stApp textarea {
-                font-size: 1.1rem !important;
-            }
-
             *:focus-visible {
                 outline: 3px solid #005fcc !important;
                 outline-offset: 3px !important;
@@ -57,43 +36,31 @@ def apply_accessibility():
             unsafe_allow_html=True
         )
 
-    # High contrast
     if st.session_state["high_contrast_mode"]:
         st.markdown(
             """
             <style>
-            .stApp,
-            [data-testid="stSidebar"] {
+            .stApp, [data-testid="stSidebar"] {
                 background: #ffffff !important;
                 color: #000000 !important;
             }
-
-            .stApp p,
-            .stApp li,
-            .stApp label,
-            .stApp h1,
-            .stApp h2,
-            .stApp h3,
+            .stApp p, .stApp li, .stApp label,
+            .stApp h1, .stApp h2, .stApp h3,
             .stApp .stMarkdown,
             [data-testid="stSidebar"] p,
             [data-testid="stSidebar"] label {
                 color: #000000 !important;
             }
-
-            .stApp button,
-            [data-testid="stSidebar"] button {
+            .stApp button, [data-testid="stSidebar"] button {
                 background: #000000 !important;
                 color: #ffffff !important;
                 border: 2px solid #000000 !important;
             }
-
-            .stApp input,
-            .stApp textarea {
+            .stApp input, .stApp textarea {
                 background: #ffffff !important;
                 color: #000000 !important;
                 border: 2px solid #000000 !important;
             }
-
             a {
                 color: #003399 !important;
                 text-decoration: underline !important;
@@ -124,73 +91,90 @@ def apply_accessibility():
             st.session_state["text_ready_to_read"]
         )
 
-        with st.sidebar:
-            components.html(
-                f"""
-                <div style="font-family:Arial,sans-serif;
-                            padding:8px;color:inherit;">
-                    <button id="play"
-                        style="padding:10px 14px;
-                               font-size:16px;cursor:pointer;">
-                        ▶ Play
-                    </button>
+        components.html(
+            f"""
+            <div style="font-family:Arial,sans-serif;padding:8px;">
+                <button id="play" style="padding:10px;font-size:16px;">
+                    ▶ Play
+                </button>
+                <button id="stop" style="padding:10px;font-size:16px;">
+                    ■ Stop
+                </button>
+                <p id="status" aria-live="polite">
+                    Press Play to listen.
+                </p>
+            </div>
 
-                    <button id="stop"
-                        style="padding:10px 14px;
-                               font-size:16px;cursor:pointer;">
-                        ■ Stop
-                    </button>
+            <script>
+            const textToRead = {speech_text};
+            const status = document.getElementById("status");
 
-                    <p id="status" aria-live="polite">
-                        Press Play to listen.
-                    </p>
-                </div>
+            function speakText() {{
+                if (!window.speechSynthesis ||
+                    !window.SpeechSynthesisUtterance) {{
+                    status.textContent =
+                        "Speech is not supported. Try Microsoft Edge.";
+                    return;
+                }}
 
-                <script>
-                const textToRead = {speech_text};
-                const status = document.getElementById("status");
+                const synth = window.speechSynthesis;
+                synth.cancel();
 
-                document.getElementById("play").onclick = function() {{
-                    if (!("speechSynthesis" in window)) {{
-                        status.textContent =
-                            "Speech is not supported in this browser.";
-                        return;
-                    }}
+                const voices = synth.getVoices();
 
+                if (!voices.length) {{
+                    status.textContent =
+                        "No speech voices available. Check your browser's speech settings and reload the page.";
+                    return;
+                }}
+
+                const utterance =
+                    new SpeechSynthesisUtterance(textToRead);
+
+                utterance.lang = "en-IN";
+
+                const voice =
+                    voices.find(v => v.lang === "en-IN") ||
+                    voices.find(v => v.lang.startsWith("en-")) ||
+                    voices.find(v => v.lang.startsWith("en"));
+
+                if (voice) {{
+                    utterance.voice = voice;
+                }}
+
+                utterance.onstart = () => {{
+                    status.textContent = "Speaking...";
+                }};
+
+                utterance.onend = () => {{
+                    status.textContent = "Finished reading.";
+                }};
+
+                utterance.onerror = (event) => {{
+                    status.textContent =
+                        "Speech error: " + event.error +
+                        ". Try reloading the page or using Microsoft Edge.";
+                }};
+
+                synth.speak(utterance);
+            }}
+
+            document.getElementById("play").onclick = speakText;
+
+            document.getElementById("stop").onclick = () => {{
+                if (window.speechSynthesis) {{
                     window.speechSynthesis.cancel();
+                }}
+                status.textContent = "Speech stopped.";
+            }};
 
-                    const utterance =
-                        new SpeechSynthesisUtterance(textToRead);
-
-                    utterance.lang = "en-IN";
-
-                    utterance.onstart = function() {{
-                        status.textContent = "Speaking...";
-                    }};
-
-                    utterance.onend = function() {{
-                        status.textContent = "Finished reading.";
-                    }};
-
-                    utterance.onerror = function(event) {{
-                        status.textContent =
-                            "Speech failed: " + event.error;
-                    }};
-
-                    window.speechSynthesis.speak(utterance);
-                }};
-
-                document.getElementById("stop").onclick = function() {{
-                    if ("speechSynthesis" in window) {{
-                        window.speechSynthesis.cancel();
-                    }}
-
-                    status.textContent = "Speech stopped.";
-                }};
-                </script>
-                """,
-                height=120
-            )
+            if (window.speechSynthesis) {{
+                window.speechSynthesis.onvoiceschanged = () => {{}};
+            }}
+            </script>
+            """,
+            height=125
+        )
 
     # Voice Input
     st.sidebar.markdown("---")
@@ -198,34 +182,30 @@ def apply_accessibility():
 
     audio = st.sidebar.audio_input("Record your question")
 
-    if audio is not None:
-        if st.sidebar.button("Convert speech to text"):
-            try:
-                import speech_recognition as sr
+    if audio is not None and st.sidebar.button("Convert speech to text"):
+        try:
+            import speech_recognition as sr
 
-                recognizer = sr.Recognizer()
+            recognizer = sr.Recognizer()
 
-                with sr.AudioFile(
-                    io.BytesIO(audio.getvalue())
-                ) as source:
-                    recorded_audio = recognizer.record(source)
+            with sr.AudioFile(io.BytesIO(audio.getvalue())) as source:
+                recorded_audio = recognizer.record(source)
 
-                recognized_text = recognizer.recognize_google(
-                    recorded_audio,
-                    language="en-IN"
-                )
+            recognized_text = recognizer.recognize_google(
+                recorded_audio,
+                language="en-IN"
+            )
 
-                st.session_state["voice_question"] = recognized_text
+            st.session_state["voice_question"] = recognized_text
 
-            except ImportError:
-                st.sidebar.error(
-                    "Install SpeechRecognition in requirements.txt."
-                )
-            except Exception:
-                st.sidebar.error(
-                    "Could not recognize speech. Please try again "
-                    "and check your internet connection."
-                )
+        except ImportError:
+            st.sidebar.error(
+                "Install SpeechRecognition in requirements.txt."
+            )
+        except Exception:
+            st.sidebar.error(
+                "Could not recognize speech. Try again and check your internet connection."
+            )
 
     if st.session_state.get("voice_question"):
         st.sidebar.write("Recognized question:")
