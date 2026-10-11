@@ -1,89 +1,148 @@
 
 import streamlit as st
-from translation import tr, LANGUAGES
 
 st.set_page_config(
     page_title="FinSaathi",
     page_icon="💰",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Restore the selected language from the URL, if available
-if "language" not in st.session_state:
-    saved_language = st.query_params.get("language", "English")
-    if saved_language not in LANGUAGES:
-        saved_language = "English"
-    st.session_state["language"] = saved_language
+# App styling
+st.markdown("""
+<style>
+    .stApp {
+        background-color: #f5f9ff;
+    }
 
-st.sidebar.title("🌐 " + tr("Language Settings"))
+    .main-title {
+        font-size: 42px;
+        font-weight: 800;
+        color: #145da0;
+        text-align: center;
+        margin-bottom: 0;
+    }
 
-selected_language = st.sidebar.selectbox(
-    "Choose your language",
-    LANGUAGES,
-    key="language"
-)
+    .tagline {
+        font-size: 18px;
+        color: #328c87;
+        text-align: center;
+        margin-top: 5px;
+    }
 
-# Keep the selected language in the URL when navigating pages
-st.query_params["language"] = selected_language
+    .welcome {
+        background: linear-gradient(120deg, #145da0, #328c87);
+        padding: 25px;
+        border-radius: 18px;
+        color: white;
+        text-align: center;
+        margin: 20px 0;
+    }
 
-st.title("💰 " + tr("FinSaathi"))
-st.subheader(tr("Learn Finance. Stay Safe."))
+    div.stButton > button {
+        width: 100%;
+        border-radius: 10px;
+        min-height: 45px;
+        font-weight: 600;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-st.write(
-    tr(
-        "Welcome to FinSaathi! Learn about banking, savings, "
-        "UPI payments, budgeting, and financial fraud prevention."
+# Supported language choices
+LANGUAGES = [
+    "English",
+    "ಕನ್ನಡ (Kannada)",
+    "हिन्दी (Hindi)",
+    "मराठी (Marathi)",
+    "தமிழ் (Tamil)",
+    "తెలుగు (Telugu)",
+    "മലയാളം (Malayalam)",
+    "বাংলা (Bengali)",
+    "ગુજરાતી (Gujarati)",
+    "ਪੰਜਾਬੀ (Punjabi)",
+    "ଓଡ଼ିଆ (Odia)",
+    "অসমীয়া (Assamese)",
+    "اردو (Urdu)",
+    "संस्कृतम् (Sanskrit)",
+    "कोंकणी (Konkani)",
+    "नेपाली (Nepali)",
+    "मैथिली (Maithili)",
+    "डोगरी (Dogri)",
+    "کٲشُر (Kashmiri)",
+    "سنڌي (Sindhi)",
+    "बोडो (Bodo)",
+    "मणिपुरी (Manipuri)",
+    "संताली (Santali)"
+]
+
+# Sidebar
+with st.sidebar:
+    st.markdown("## 💰 FinSaathi")
+    st.caption("Learn Finance. Stay Safe.")
+
+    selected_language = st.selectbox(
+        "🌐 Select Language",
+        LANGUAGES,
+        key="finsaathi_language"
     )
+
+    st.divider()
+    st.markdown("### 📚 Learning Modules")
+    st.caption("Choose a topic from the links below.")
+
+# Main home page
+st.markdown(
+    '<div class="main-title">💰 FinSaathi</div>',
+    unsafe_allow_html=True
 )
+
+st.markdown(
+    '<div class="tagline">Learn Finance. Stay Safe.</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown("""
+<div class="welcome">
+    <h2>Welcome to FinSaathi!</h2>
+    <p>Your friendly companion for financial awareness.</p>
+    <p>Learn about banking, savings, digital payments,
+    budgeting and financial safety.</p>
+</div>
+""", unsafe_allow_html=True)
 
 st.info(
-    "💡 " + tr(
-        "Learn how to manage money safely and make better "
-        "financial decisions."
-    )
+    f"Selected language: {selected_language}. "
+    "Full translation depends on your translation integration and API configuration."
 )
 
-st.markdown("---")
-st.subheader("📚 " + tr("Explore FinSaathi"))
+st.subheader("Explore FinSaathi")
 
-col1, col2 = st.columns(2)
+# Links to existing Streamlit pages
+pages = [
+    ("🏦 Banking", "pages/1_Banking.py"),
+    ("🌱 Savings", "pages/Savings.py"),
+    ("📱 UPI Payments", "pages/UPI.py"),
+    ("🛡️ Fraud Safety", "pages/Fraud_Safety.py"),
+    ("🤖 AI Voice Assistant", "pages/AI_Assistant.py"),
+    ("💵 Budget Planner", "pages/Budget.py"),
+    ("📝 Financial Quiz", "pages/Quiz.py"),
+]
 
-with col1:
-    st.markdown("### 🏦 " + tr("Banking"))
-    st.write(tr("Learn about bank accounts, ATMs, and banking safety."))
-    if st.button(tr("Open Banking"), use_container_width=True):
-        st.switch_page("pages/1_Banking.py")
+for title, page_path in pages:
+    st.page_link(page_path, label=title, icon="➡️")
 
-    st.markdown("### 💰 " + tr("Savings"))
-    st.write(tr("Learn simple ways to save money."))
-    if st.button(tr("Open Savings"), use_container_width=True):
-        st.switch_page("pages/Savings.py")
+st.divider()
 
-    st.markdown("### 📱 " + tr("UPI Payments"))
-    st.write(tr("Understand digital payments and safe UPI practices."))
-    if st.button(tr("Open UPI"), use_container_width=True):
-        st.switch_page("pages/UPI.py")
+st.subheader("🔐 Stay Financially Safe")
+st.markdown("""
+- Never share your OTP, UPI PIN or banking password.
+- Verify payment requests before approving them.
+- Do not trust unexpected links or urgent money requests.
+- Contact your bank through its official website or phone number
+  if you suspect fraud.
+""")
 
-    st.markdown("### 🛡️ " + tr("Fraud Safety"))
-    st.write(tr("Learn how to identify scams and protect your money."))
-    if st.button(tr("Open Fraud Safety"), use_container_width=True):
-        st.switch_page("pages/Fraud_Safety.py")
-
-with col2:
-    st.markdown("### 🤖 " + tr("AI Assistant"))
-    st.write(tr("Explore financial questions and helpful guidance."))
-    if st.button(tr("Open AI Assistant"), use_container_width=True):
-        st.switch_page("pages/AI_Assistant.py")
-
-    st.markdown("### 📊 " + tr("Budget Planner"))
-    st.write(tr("Plan your monthly spending and savings."))
-    if st.button(tr("Open Budget"), use_container_width=True):
-        st.switch_page("pages/Budget.py")
-
-    st.markdown("### 📝 " + tr("Financial Quiz"))
-    st.write(tr("Test your financial knowledge."))
-    if st.button(tr("Open Quiz"), use_container_width=True):
-        st.switch_page("pages/Quiz.py")
-
-st.markdown("---")
-st.caption(tr("FinSaathi — Learn Finance. Stay Safe."))
+st.caption(
+    "FinSaathi is an educational awareness application. "
+    "It does not access real bank accounts or perform actual payments."
+)
