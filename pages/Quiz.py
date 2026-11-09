@@ -1,5 +1,6 @@
-
+```python
 import streamlit as st
+import random
 from translation import tr, LANGUAGES
 
 st.set_page_config(
@@ -17,18 +18,15 @@ if st.session_state["language"] not in LANGUAGES:
 
 st.sidebar.title(tr("🌐 Language / ಭಾಷೆ"))
 
-selected_language = st.sidebar.selectbox(
+st.sidebar.selectbox(
     tr("Choose your language"),
     LANGUAGES,
-    index=LANGUAGES.index(st.session_state["language"]),
-    key="quiz_language"
+    key="language"
 )
 
-if selected_language != st.session_state["language"]:
-    st.session_state["language"] = selected_language
-    st.query_params["language"] = selected_language
-    st.rerun()
+st.query_params["language"] = st.session_state["language"]
 
+# Main heading
 st.title(tr("🎯 FinSaathi Financial Literacy Quiz"))
 st.subheader(tr("Test your knowledge and learn safer money habits."))
 
@@ -37,7 +35,9 @@ st.info(
        "Read the explanation after submitting your answer.")
 )
 
-# Questions are stored as: question, options, correct option index, explanation, topic.
+# Questions are stored as:
+# question, options, correct option index, explanation, topic.
+
 questions = [
     {
         "question": "What should you do with your bank OTP?",
@@ -185,7 +185,7 @@ questions = [
     }
 ]
 
-# Start and reset controls
+# Initialise quiz state
 if "quiz_started" not in st.session_state:
     st.session_state["quiz_started"] = False
 
@@ -195,6 +195,10 @@ if "quiz_answers" not in st.session_state:
 if "quiz_submitted" not in st.session_state:
     st.session_state["quiz_submitted"] = False
 
+if "quiz_question_order" not in st.session_state:
+    st.session_state["quiz_question_order"] = list(range(len(questions)))
+
+# Start and restart controls
 col1, col2 = st.columns(2)
 
 with col1:
@@ -202,44 +206,67 @@ with col1:
         tr("▶️ Start / Restart Quiz"),
         use_container_width=True
     ):
+        order = list(range(len(questions)))
+        random.shuffle(order)
+
+        st.session_state["quiz_question_order"] = order
         st.session_state["quiz_started"] = True
         st.session_state["quiz_answers"] = {}
         st.session_state["quiz_submitted"] = False
+
+        for i in range(len(questions)):
+            st.session_state.pop(f"quiz_answer_{i}", None)
+
         st.rerun()
 
 with col2:
     st.metric(tr("Total Questions"), len(questions))
 
+# Before starting
 if not st.session_state["quiz_started"]:
+
     st.markdown("### " + tr("Topics covered"))
+
     st.write(
         tr("Banking • Savings • Budgeting • UPI • Fraud Safety • "
            "Interest • Investments • Borrowing • Privacy")
     )
+
     st.write(tr("Press Start / Restart Quiz to begin."))
+
     st.stop()
 
 st.markdown("---")
 
-# Answer each question
-for index, item in enumerate(questions):
+# Get shuffled question order
+question_order = st.session_state["quiz_question_order"]
+
+# Display questions
+for display_index, question_index in enumerate(question_order):
+
+    item = questions[question_index]
+
     st.markdown(
-        f"### {tr('Question')} {index + 1}: {tr(item['question'])}"
+        f"### {tr('Question')} {display_index + 1}: "
+        f"{tr(item['question'])}"
     )
 
     selected_answer = st.radio(
         tr("Choose one answer"),
         options=range(len(item["options"])),
         format_func=lambda option, item=item: tr(item["options"][option]),
-        key=f"quiz_answer_{index}",
-        index=st.session_state["quiz_answers"].get(index)
+        key=f"quiz_answer_{question_index}",
+        index=st.session_state["quiz_answers"].get(question_index)
     )
 
-    st.session_state["quiz_answers"][index] = selected_answer
+    st.session_state["quiz_answers"][question_index] = selected_answer
 
+    # Show feedback after submission
     if st.session_state["quiz_submitted"]:
+
         if selected_answer == item["answer"]:
             st.success(tr("✅ Correct answer!"))
+
         else:
             st.error(
                 tr("❌ Not quite. Correct answer: ")
@@ -252,6 +279,7 @@ for index, item in enumerate(questions):
 
 # Progress
 answered_count = len(st.session_state["quiz_answers"])
+
 st.progress(answered_count / len(questions))
 
 st.caption(
@@ -259,20 +287,28 @@ st.caption(
     + f"{answered_count}/{len(questions)}"
 )
 
+# Submit quiz
 if not st.session_state["quiz_submitted"]:
+
     if st.button(
         tr("✅ Submit Quiz"),
         type="primary",
         use_container_width=True
     ):
+
         if answered_count < len(questions):
-            st.warning(tr("Please answer every question before submitting."))
+
+            st.warning(
+                tr("Please answer every question before submitting.")
+            )
+
         else:
             st.session_state["quiz_submitted"] = True
             st.rerun()
 
 # Results
 if st.session_state["quiz_submitted"]:
+
     score = sum(
         1
         for index, item in enumerate(questions)
@@ -282,6 +318,7 @@ if st.session_state["quiz_submitted"]:
     percentage = score / len(questions) * 100
 
     st.balloons()
+
     st.header(tr("🏆 Your Quiz Results"))
 
     col1, col2, col3 = st.columns(3)
@@ -305,14 +342,19 @@ if st.session_state["quiz_submitted"]:
         )
 
     if percentage >= 80:
+
         st.success(
             tr("Excellent work! You understand many important financial safety habits.")
         )
+
     elif percentage >= 50:
+
         st.info(
             tr("Good effort! Review the explanations to strengthen your financial knowledge.")
         )
+
     else:
+
         st.warning(
             tr("Keep learning! Visit the Banking, UPI, Savings, Budget, and Fraud Safety pages and try again.")
         )
@@ -321,10 +363,14 @@ if st.session_state["quiz_submitted"]:
     topic_results = {}
 
     for index, item in enumerate(questions):
+
         topic = item["topic"]
 
         if topic not in topic_results:
-            topic_results[topic] = {"correct": 0, "total": 0}
+            topic_results[topic] = {
+                "correct": 0,
+                "total": 0
+            }
 
         topic_results[topic]["total"] += 1
 
@@ -334,16 +380,20 @@ if st.session_state["quiz_submitted"]:
     st.subheader(tr("Topic-wise Performance"))
 
     for topic, result in topic_results.items():
+
         topic_percentage = result["correct"] / result["total"]
+
         st.write(
             f"**{tr(topic)}:** "
             f"{result['correct']}/{result['total']}"
         )
+
         st.progress(topic_percentage)
 
     st.markdown("---")
 
     st.subheader(tr("Keep Improving"))
+
     st.write(
         tr("Financial literacy improves with practice. "
            "Review the explanations, learn from mistakes, and repeat the quiz.")
@@ -353,8 +403,17 @@ if st.session_state["quiz_submitted"]:
         tr("🔄 Try Again"),
         use_container_width=True
     ):
+
+        order = list(range(len(questions)))
+        random.shuffle(order)
+
+        st.session_state["quiz_question_order"] = order
         st.session_state["quiz_answers"] = {}
         st.session_state["quiz_submitted"] = False
+
+        for i in range(len(questions)):
+            st.session_state.pop(f"quiz_answer_{i}", None)
+
         st.rerun()
 
 st.markdown("---")
@@ -363,3 +422,4 @@ st.caption(
     tr("FinSaathi — Learn Finance. Stay Safe. "
        "This quiz is for educational purposes.")
 )
+```
