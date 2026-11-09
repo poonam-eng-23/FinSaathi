@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 import random
 from translation import tr, LANGUAGES
@@ -422,4 +422,4 @@ st.caption(
     tr("FinSaathi — Learn Finance. Stay Safe. "
        "This quiz is for educational purposes.")
 )
-```
+
