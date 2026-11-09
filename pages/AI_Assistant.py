@@ -10,41 +10,58 @@ st.set_page_config(
 
 # Shared language selection
 if "language" not in st.session_state:
-    st.session_state["language"] = st.query_params.get("language", "English")
+    saved_language = st.query_params.get("language", "English")
 
-if st.session_state["language"] not in LANGUAGES:
-    st.session_state["language"] = "English"
+    if saved_language not in LANGUAGES:
+        saved_language = "English"
 
-st.sidebar.title(tr("🌐 Language / ಭಾಷೆ"))
+    st.session_state["language"] = saved_language
 
-selected_language = st.sidebar.selectbox(
-    tr("Choose your language"),
-    LANGUAGES,
-    index=LANGUAGES.index(st.session_state["language"]),
-    key="assistant_language"
-)
 
-if selected_language != st.session_state["language"]:
-    st.session_state["language"] = selected_language
-    st.query_params["language"] = selected_language
-    st.rerun()
+# Sidebar
+with st.sidebar:
 
+    st.title("💰 FinSaathi")
+    st.caption(tr("Learn Finance. Stay Safe."))
+
+    st.divider()
+
+    st.selectbox(
+        "🌐 " + tr("Choose your language"),
+        LANGUAGES,
+        index=LANGUAGES.index(st.session_state["language"]),
+        key="language"
+    )
+
+    st.query_params["language"] = st.session_state["language"]
+
+
+# Main heading
 st.title(tr("🤖 Saathi - Your Financial Learning Assistant"))
-st.subheader(tr("Ask questions. Learn money skills. Make safer decisions."))
+
+st.subheader(
+    tr("Ask questions. Learn money skills. Make safer decisions.")
+)
 
 st.info(
-    tr("Saathi provides general financial education. "
-       "It cannot access your bank account, make payments, or replace a qualified financial adviser.")
+    tr(
+        "Saathi provides general financial education. "
+        "It cannot access your bank account, make payments, "
+        "or replace a qualified financial adviser."
+    )
 )
+
 
 # Educational response system
 def get_response(question):
+
     q = question.lower()
 
     if any(word in q for word in [
         "otp", "fraud", "scam", "cheated", "cybercrime",
         "cyber crime", "fake call", "phishing", "stolen money"
     ]):
+
         return (
             "🛡️ **Fraud safety**\n\n"
             "1. Never share your OTP, UPI PIN, ATM PIN, or password.\n"
@@ -59,6 +76,7 @@ def get_response(question):
         "upi", "google pay", "phonepe", "payment", "qr code",
         "send money", "receive money"
     ]):
+
         return (
             "📱 **UPI safety and payments**\n\n"
             "• Check the recipient's name and amount before paying.\n"
@@ -71,6 +89,7 @@ def get_response(question):
     if any(word in q for word in [
         "save", "saving", "savings", "emergency fund", "saving money"
     ]):
+
         return (
             "💰 **How to build savings**\n\n"
             "1. Set a clear goal, such as education expenses or emergencies.\n"
@@ -86,6 +105,7 @@ def get_response(question):
         "budget", "allowance", "expenses", "spending",
         "monthly income", "manage money"
     ]):
+
         return (
             "📊 **Make a simple budget**\n\n"
             "1. Write down your monthly income or allowance.\n"
@@ -102,6 +122,7 @@ def get_response(question):
         "bank account", "open account", "banking", "passbook",
         "atm", "debit card"
     ]):
+
         return (
             "🏦 **Banking basics**\n\n"
             "• Choose a bank and account suitable for your needs.\n"
@@ -115,6 +136,7 @@ def get_response(question):
     if any(word in q for word in [
         "interest", "simple interest", "compound interest"
     ]):
+
         return (
             "📈 **Understanding interest**\n\n"
             "Interest is money earned on savings or paid when borrowing.\n\n"
@@ -128,6 +150,7 @@ def get_response(question):
     if any(word in q for word in [
         "loan", "borrow", "debt", "emi", "lending"
     ]):
+
         return (
             "💳 **Borrowing safely**\n\n"
             "• Compare the interest rate, fees, repayment period, and total repayment.\n"
@@ -141,6 +164,7 @@ def get_response(question):
         "government scheme", "jan dhan", "pmjdy", "insurance",
         "pension", "subsidy"
     ]):
+
         return (
             "🇮🇳 **Government financial schemes**\n\n"
             "You can learn about banking access, insurance, pensions, and small-savings schemes "
@@ -154,6 +178,7 @@ def get_response(question):
     if any(word in q for word in [
         "invest", "investment", "stock", "share market", "mutual fund"
     ]):
+
         return (
             "📚 **Investment basics**\n\n"
             "• Learn about risk, returns, fees, and the possibility of losing money.\n"
@@ -167,6 +192,7 @@ def get_response(question):
     if any(word in q for word in [
         "hello", "hi", "hey", "namaste", "ನಮಸ್ಕಾರ"
     ]):
+
         return (
             "👋 Hello! I am Saathi, your financial learning helper.\n\n"
             "You can ask me about saving money, banking, budgeting, UPI safety, "
@@ -201,27 +227,46 @@ suggestions = [
 columns = st.columns(2)
 
 for index, suggestion in enumerate(suggestions):
+
     with columns[index % 2]:
-        if st.button(tr(suggestion), key=f"assistant_suggestion_{index}",
-                     use_container_width=True):
+
+        if st.button(
+            tr(suggestion),
+            key=f"assistant_suggestion_{index}",
+            use_container_width=True
+        ):
+
             st.session_state["saathi_question"] = suggestion
 
+
 st.markdown("---")
+
 
 # Chat history
 if "saathi_messages" not in st.session_state:
     st.session_state["saathi_messages"] = []
 
+
 for item in st.session_state["saathi_messages"]:
+
     with st.chat_message(item["role"]):
+
         st.markdown(tr(item["content"]))
 
-question = st.chat_input(tr("Ask Saathi a financial question..."))
+
+# Chat input
+question = st.chat_input(
+    tr("Ask Saathi a financial question...")
+)
+
 
 if st.session_state.get("saathi_question"):
+
     question = st.session_state.pop("saathi_question")
 
+
 if question:
+
     st.session_state["saathi_messages"].append(
         {"role": "user", "content": question}
     )
@@ -234,12 +279,22 @@ if question:
 
     st.rerun()
 
+
+# Clear conversation
 if st.session_state["saathi_messages"]:
-    if st.button(tr("🗑️ Clear conversation"), key="clear_saathi_chat"):
+
+    if st.button(
+        tr("🗑️ Clear conversation"),
+        key="clear_saathi_chat"
+    ):
+
         st.session_state["saathi_messages"] = []
+
         st.rerun()
 
+
 st.markdown("---")
+
 
 # Quick learning cards
 st.header(tr("📘 Quick Financial Lessons"))
@@ -247,20 +302,39 @@ st.header(tr("📘 Quick Financial Lessons"))
 col1, col2, col3 = st.columns(3)
 
 with col1:
+
     st.subheader(tr("💰 Save"))
-    st.write(tr("Set a realistic savings goal and review your progress regularly."))
+
+    st.write(
+        tr("Set a realistic savings goal and review your progress regularly.")
+    )
+
 
 with col2:
+
     st.subheader(tr("🔐 Protect"))
-    st.write(tr("Keep your PINs, passwords, and OTPs private."))
+
+    st.write(
+        tr("Keep your PINs, passwords, and OTPs private.")
+    )
+
 
 with col3:
+
     st.subheader(tr("📊 Plan"))
-    st.write(tr("Track income and expenses to make informed spending decisions."))
+
+    st.write(
+        tr("Track income and expenses to make informed spending decisions.")
+    )
+
 
 st.markdown("---")
 
+
+# Footer
 st.caption(
-    tr("FinSaathi — Learn Finance. Stay Safe. "
-       "Educational information only; verify important decisions with official sources.")
+    tr(
+        "FinSaathi — Learn Finance. Stay Safe. "
+        "Educational information only; verify important decisions with official sources."
+    )
 )
