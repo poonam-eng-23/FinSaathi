@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 from translation import tr, LANGUAGES
 
@@ -437,4 +437,4 @@ st.success(
 st.caption(
     tr("FinSaathi — Learn Finance. Stay Safe.")
 )
-```
+
