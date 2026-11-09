@@ -8,26 +8,36 @@ st.set_page_config(
     layout="wide"
 )
 
-# Keep the selected language consistent with FinSaathi
+# Maintain the selected language across pages
 if "language" not in st.session_state:
     saved_language = st.query_params.get("language", "English")
+
     if saved_language not in LANGUAGES:
         saved_language = "English"
+
     st.session_state["language"] = saved_language
 
-st.sidebar.title("🌐 " + tr("Language Settings"))
 
-selected_language = st.sidebar.selectbox(
-    tr("Choose your language"),
-    LANGUAGES,
-    index=LANGUAGES.index(st.session_state["language"]),
-    key="banking_language"
-)
+# Language selector
+with st.sidebar:
+    st.title("💰 FinSaathi")
+    st.caption(tr("Learn Finance. Stay Safe."))
 
-st.session_state["language"] = selected_language
-st.query_params["language"] = selected_language
+    st.divider()
 
+    st.selectbox(
+        "🌐 " + tr("Choose your language"),
+        LANGUAGES,
+        index=LANGUAGES.index(st.session_state["language"]),
+        key="language"
+    )
+
+    st.query_params["language"] = st.session_state["language"]
+
+
+# PAGE TITLE
 st.title("🏦 " + tr("Banking Basics"))
+
 st.write(
     tr(
         "Learn how bank accounts work, how to use ATMs safely, "
@@ -44,6 +54,7 @@ st.info(
 
 st.markdown("---")
 
+
 # SECTION 1: INTRODUCTION
 st.header("1. " + tr("Understanding Banking"))
 
@@ -55,13 +66,17 @@ st.write(
 )
 
 st.markdown("**" + tr("Why do people use banks?") + "**")
-st.markdown(
-    "- " + tr("To keep money safer than carrying large amounts of cash.") + "\n"
-    "- " + tr("To receive salaries, scholarships, pensions, and government benefits.") + "\n"
-    "- " + tr("To transfer money to other people.") + "\n"
-    "- " + tr("To save money and earn interest where applicable.") + "\n"
-    "- " + tr("To maintain a record of financial transactions.")
-)
+
+reasons = [
+    "To keep money safer than carrying large amounts of cash.",
+    "To receive salaries, scholarships, pensions, and government benefits.",
+    "To transfer money to other people.",
+    "To save money and earn interest where applicable.",
+    "To maintain a record of financial transactions."
+]
+
+for reason in reasons:
+    st.markdown("- " + tr(reason))
 
 st.success(
     "📌 " + tr(
@@ -71,6 +86,7 @@ st.success(
 )
 
 st.markdown("---")
+
 
 # SECTION 2: TYPES OF ACCOUNTS
 st.header("2. " + tr("Types of Bank Accounts"))
@@ -100,17 +116,21 @@ account_data = [
 
 st.table(account_data)
 
-st.subheader("How to choose an account")
+st.subheader(tr("How to choose an account"))
 
-st.markdown(
-    "1. " + tr("Decide why you need the account.") + "\n"
-    "2. " + tr("Compare service charges, minimum balance, and interest terms.") + "\n"
-    "3. " + tr("Check access to branches, ATMs, and digital banking.") + "\n"
-    "4. " + tr("Read the terms and conditions before opening the account.") + "\n"
-    "5. " + tr("Use the bank's official website or branch for verified information.")
-)
+account_steps = [
+    "Decide why you need the account.",
+    "Compare service charges, minimum balance, and interest terms.",
+    "Check access to branches, ATMs, and digital banking.",
+    "Read the terms and conditions before opening the account.",
+    "Use the bank's official website or branch for verified information."
+]
+
+for i, step in enumerate(account_steps, 1):
+    st.write(f"**{i}.** {tr(step)}")
 
 st.markdown("---")
+
 
 # SECTION 3: OPENING AN ACCOUNT
 st.header("3. " + tr("How to Open a Bank Account"))
@@ -125,16 +145,16 @@ st.write(
 st.markdown("**" + tr("Step-by-step guide") + "**")
 
 steps = [
-    tr("Choose a bank and account suitable for your needs."),
-    tr("Ask about eligibility, fees, minimum balance, and services."),
-    tr("Prepare the required identity and address documents."),
-    tr("Complete the official application form."),
-    tr("Complete identity verification as required by the bank."),
-    tr("Read the account terms and keep your account details secure.")
+    "Choose a bank and account suitable for your needs.",
+    "Ask about eligibility, fees, minimum balance, and services.",
+    "Prepare the required identity and address documents.",
+    "Complete the official application form.",
+    "Complete identity verification as required by the bank.",
+    "Read the account terms and keep your account details secure."
 ]
 
 for number, step in enumerate(steps, start=1):
-    st.write(f"**{number}.** {step}")
+    st.write(f"**{number}.** {tr(step)}")
 
 st.warning(
     "⚠️ " + tr(
@@ -146,22 +166,26 @@ st.warning(
 
 st.markdown("---")
 
+
 # SECTION 4: ATM AND DEBIT CARD SAFETY
 st.header("4. " + tr("ATM and Debit Card Safety"))
 
-st.subheader("Using an ATM safely")
+st.subheader(tr("Using an ATM safely"))
 
-st.markdown(
-    "- " + tr("Check your surroundings before using an ATM.") + "\n"
-    "- " + tr("Cover the keypad while entering your PIN.") + "\n"
-    "- " + tr("Never write your PIN on your card.") + "\n"
-    "- " + tr("Do not accept help from strangers with your card or PIN.") + "\n"
-    "- " + tr("Collect your card and cash before leaving.") + "\n"
-    "- " + tr("Check transaction alerts and your account statement.") + "\n"
-    "- " + tr("Report a lost card immediately through your bank's official channel.")
-)
+atm_tips = [
+    "Check your surroundings before using an ATM.",
+    "Cover the keypad while entering your PIN.",
+    "Never write your PIN on your card.",
+    "Do not accept help from strangers with your card or PIN.",
+    "Collect your card and cash before leaving.",
+    "Check transaction alerts and your account statement.",
+    "Report a lost card immediately through your bank's official channel."
+]
 
-st.subheader("Example situation")
+for tip in atm_tips:
+    st.markdown("- " + tr(tip))
+
+st.subheader(tr("Example situation"))
 
 with st.expander(tr("What should you do if your card is lost?")):
     st.write(
@@ -173,6 +197,7 @@ with st.expander(tr("What should you do if your card is lost?")):
     )
 
 st.markdown("---")
+
 
 # SECTION 5: BANK STATEMENTS
 st.header("5. " + tr("Understanding Your Bank Statement"))
@@ -209,16 +234,18 @@ statement_data = [
 
 st.table(statement_data)
 
-st.subheader("Practice example")
+st.subheader(tr("Practice example"))
 
 opening_balance = 1000
 money_received = 500
 money_spent = 250
+
 closing_balance = opening_balance + money_received - money_spent
 
 st.write(tr("Opening balance") + ": ₹1,000")
 st.write(tr("Money received") + ": ₹500")
 st.write(tr("Money spent") + ": ₹250")
+
 st.metric(
     tr("Closing balance"),
     f"₹{closing_balance:,}"
@@ -228,17 +255,21 @@ st.caption(
     tr("This is a fictional example for learning, not a real bank statement.")
 )
 
-st.subheader("If you notice an unfamiliar transaction")
+st.subheader(tr("If you notice an unfamiliar transaction"))
 
-st.markdown(
-    "1. " + tr("Check the transaction date, amount, and reference.") + "\n"
-    "2. " + tr("Contact your bank through its official channel.") + "\n"
-    "3. " + tr("Report unauthorised transactions promptly.") + "\n"
-    "4. " + tr("Keep the complaint reference number and relevant records.") + "\n"
-    "5. " + tr("Never share an OTP or PIN to obtain a refund.")
-)
+statement_steps = [
+    "Check the transaction date, amount, and reference.",
+    "Contact your bank through its official channel.",
+    "Report unauthorised transactions promptly.",
+    "Keep the complaint reference number and relevant records.",
+    "Never share an OTP or PIN to obtain a refund."
+]
+
+for i, step in enumerate(statement_steps, 1):
+    st.write(f"**{i}.** {tr(step)}")
 
 st.markdown("---")
+
 
 # SECTION 6: GOVERNMENT BANKING SCHEMES
 st.header("6. " + tr("Government Banking Schemes"))
@@ -274,7 +305,11 @@ schemes = [
     }
 ]
 
-st.dataframe(schemes, use_container_width=True, hide_index=True)
+st.dataframe(
+    schemes,
+    use_container_width=True,
+    hide_index=True
+)
 
 st.info(
     "📌 " + tr(
@@ -285,6 +320,7 @@ st.info(
 )
 
 st.markdown("---")
+
 
 # SECTION 7: CASE STUDY
 st.header("7. " + tr("Banking Case Study"))
@@ -298,20 +334,29 @@ st.write(
 )
 
 with st.expander(tr("Read the situation and safety guidance")):
+
     st.markdown("**" + tr("Warning signs") + "**")
-    st.markdown(
-        "- " + tr("The caller creates urgency or fear.") + "\n"
-        "- " + tr("The caller asks for a confidential OTP or PIN.") + "\n"
-        "- " + tr("The caller pressures the person to act without verification.")
-    )
+
+    warning_signs = [
+        "The caller creates urgency or fear.",
+        "The caller asks for a confidential OTP or PIN.",
+        "The caller pressures the person to act without verification."
+    ]
+
+    for sign in warning_signs:
+        st.markdown("- " + tr(sign))
 
     st.markdown("**" + tr("What should the person do?") + "**")
-    st.markdown(
-        "1. " + tr("Do not reveal the OTP or PIN.") + "\n"
-        "2. " + tr("End the call and do not follow suspicious instructions.") + "\n"
-        "3. " + tr("Contact the bank using a verified official number.") + "\n"
-        "4. " + tr("If money is lost, contact the bank and report the incident promptly.")
-    )
+
+    case_steps = [
+        "Do not reveal the OTP or PIN.",
+        "End the call and do not follow suspicious instructions.",
+        "Contact the bank using a verified official number.",
+        "If money is lost, contact the bank and report the incident promptly."
+    ]
+
+    for i, step in enumerate(case_steps, 1):
+        st.write(f"**{i}.** {tr(step)}")
 
 st.success(
     "🛡️ " + tr(
@@ -322,6 +367,7 @@ st.success(
 
 st.markdown("---")
 
+
 # SECTION 8: BANKING SAFETY CHECKLIST
 st.header("8. " + tr("Banking Safety Checklist"))
 
@@ -330,22 +376,27 @@ st.write(
 )
 
 checklist_items = [
-    tr("I keep my PIN and passwords private."),
-    tr("I never share OTPs with callers or messages."),
-    tr("I use official banking apps and websites."),
-    tr("I review transaction messages and statements."),
-    tr("I report lost cards and suspicious transactions promptly."),
-    tr("I check fees and terms before accepting a banking product."),
-    tr("I never install unknown apps at the request of a caller."),
-    tr("I verify government schemes using official sources.")
+    "I keep my PIN and passwords private.",
+    "I never share OTPs with callers or messages.",
+    "I use official banking apps and websites.",
+    "I review transaction messages and statements.",
+    "I report lost cards and suspicious transactions promptly.",
+    "I check fees and terms before accepting a banking product.",
+    "I never install unknown apps at the request of a caller.",
+    "I verify government schemes using official sources."
 ]
 
-for item in checklist_items:
-    st.checkbox(item, key="banking_check_" + str(checklist_items.index(item)))
+for index, item in enumerate(checklist_items):
+    st.checkbox(
+        tr(item),
+        key=f"banking_check_{index}"
+    )
 
 st.markdown("---")
 
-st.subheader("Remember")
+
+# FINAL MESSAGE
+st.subheader(tr("Remember"))
 
 st.info(
     "🏦 " + tr(
