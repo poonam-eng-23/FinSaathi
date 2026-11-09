@@ -9,26 +9,26 @@ st.set_page_config(
     layout="wide"
 )
 
-# Restore the selected language
+# Shared language selection
 if "language" not in st.session_state:
-    saved_language = st.query_params.get("language", "English")
-    if saved_language not in LANGUAGES:
-        saved_language = "English"
-    st.session_state["language"] = saved_language
+    st.session_state["language"] = st.query_params.get("language", "English")
+
+if st.session_state["language"] not in LANGUAGES:
+    st.session_state["language"] = "English"
 
 st.sidebar.title("🌐 " + tr("Language Settings"))
 
-selected_language = st.sidebar.selectbox(
+st.sidebar.selectbox(
     tr("Choose your language"),
     LANGUAGES,
-    index=LANGUAGES.index(st.session_state["language"]),
-    key="savings_language"
+    key="language"
 )
 
-st.session_state["language"] = selected_language
-st.query_params["language"] = selected_language
+st.query_params["language"] = st.session_state["language"]
 
+# Main heading
 st.title("💰 " + tr("Savings and Smart Money Habits"))
+
 st.write(
     tr(
         "Learn how to save regularly, set financial goals, prepare for "
@@ -57,6 +57,7 @@ st.write(
 )
 
 st.markdown("**" + tr("Benefits of saving") + "**")
+
 st.markdown(
     "- " + tr("Helps prepare for unexpected expenses.") + "\n"
     "- " + tr("Supports education and important family needs.") + "\n"
@@ -97,11 +98,12 @@ goal_data = [
 
 st.table(goal_data)
 
-st.subheader("Create your savings goal")
+st.subheader(tr("Create your savings goal"))
 
 goal_name = st.text_input(
     tr("What are you saving for?"),
-    placeholder=tr("Example: Books or education")
+    placeholder=tr("Example: Books or education"),
+    key="savings_goal_name"
 )
 
 goal_amount = st.number_input(
@@ -109,7 +111,8 @@ goal_amount = st.number_input(
     min_value=0,
     max_value=10000000,
     value=5000,
-    step=500
+    step=500,
+    key="savings_goal_amount"
 )
 
 current_savings = st.number_input(
@@ -117,7 +120,8 @@ current_savings = st.number_input(
     min_value=0,
     max_value=10000000,
     value=500,
-    step=100
+    step=100,
+    key="savings_current_amount"
 )
 
 monthly_contribution = st.number_input(
@@ -125,7 +129,8 @@ monthly_contribution = st.number_input(
     min_value=0,
     max_value=1000000,
     value=500,
-    step=100
+    step=100,
+    key="savings_monthly_contribution"
 )
 
 remaining = max(0, goal_amount - current_savings)
@@ -133,14 +138,21 @@ remaining = max(0, goal_amount - current_savings)
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric(tr("Target remaining"), f"₹{remaining:,.0f}")
+    st.metric(
+        tr("Target remaining"),
+        f"₹{remaining:,.0f}"
+    )
 
 with col2:
     progress = min(
         1.0,
         current_savings / goal_amount if goal_amount > 0 else 0.0
     )
-    st.metric(tr("Goal progress"), f"{progress * 100:.1f}%")
+
+    st.metric(
+        tr("Goal progress"),
+        f"{progress * 100:.1f}%"
+    )
 
 st.progress(progress)
 
@@ -149,13 +161,16 @@ if goal_name.strip():
 
 if remaining == 0:
     st.success(tr("You have reached your savings target!"))
+
 elif monthly_contribution > 0:
     months_needed = math.ceil(remaining / monthly_contribution)
+
     st.info(
         tr("Estimated time to reach your target")
         + f": {months_needed} "
         + tr("months, assuming regular contributions and no withdrawals.")
     )
+
 else:
     st.warning(
         tr("Enter a monthly savings amount greater than zero to estimate the time.")
@@ -182,7 +197,7 @@ st.markdown(
     "6. " + tr("Adjust the plan if your income or needs change.")
 )
 
-st.subheader("Illustrative monthly plan")
+st.subheader(tr("Illustrative monthly plan"))
 
 budget_data = [
     {
@@ -225,6 +240,7 @@ st.write(
 )
 
 st.markdown("**" + tr("Ways to get started") + "**")
+
 st.markdown(
     "- " + tr("Begin with a small amount you can manage.") + "\n"
     "- " + tr("Keep emergency money accessible when needed.") + "\n"
@@ -253,14 +269,15 @@ st.write(
     )
 )
 
-st.subheader("Simple interest example")
+st.subheader(tr("Simple interest example"))
 
 principal = st.number_input(
     tr("Example deposit amount (₹)"),
     min_value=0,
     max_value=10000000,
     value=10000,
-    step=1000
+    step=1000,
+    key="savings_principal"
 )
 
 annual_rate = st.number_input(
@@ -268,7 +285,8 @@ annual_rate = st.number_input(
     min_value=0.0,
     max_value=100.0,
     value=5.0,
-    step=0.5
+    step=0.5,
+    key="savings_interest_rate"
 )
 
 years = st.number_input(
@@ -276,7 +294,8 @@ years = st.number_input(
     min_value=1,
     max_value=50,
     value=2,
-    step=1
+    step=1,
+    key="savings_interest_years"
 )
 
 interest_earned = principal * (annual_rate / 100) * years
@@ -285,10 +304,16 @@ total_amount = principal + interest_earned
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric(tr("Illustrative interest"), f"₹{interest_earned:,.2f}")
+    st.metric(
+        tr("Illustrative interest"),
+        f"₹{interest_earned:,.2f}"
+    )
 
 with col2:
-    st.metric(tr("Principal plus interest"), f"₹{total_amount:,.2f}")
+    st.metric(
+        tr("Principal plus interest"),
+        f"₹{total_amount:,.2f}"
+    )
 
 st.code(
     "Simple Interest = Principal × Rate × Time / 100",
@@ -410,15 +435,19 @@ st.write(
 )
 
 with st.expander(tr("View the worked example")):
+
     st.write(
         tr("Monthly savings") + ": ₹1,000"
     )
+
     st.write(
         tr("Number of months") + ": 6"
     )
+
     st.write(
         tr("Total planned savings") + ": ₹1,000 × 6 = ₹6,000"
     )
+
     st.success(
         tr(
             "If the family saves the planned amount each month and does not "
@@ -426,14 +455,15 @@ with st.expander(tr("View the worked example")):
         )
     )
 
-st.subheader("Try a different monthly amount")
+st.subheader(tr("Try a different monthly amount"))
 
 case_monthly = st.number_input(
     tr("Your planned monthly savings (₹)"),
     min_value=0,
     max_value=1000000,
     value=1000,
-    step=100
+    step=100,
+    key="savings_case_monthly"
 )
 
 case_target = st.number_input(
@@ -441,18 +471,25 @@ case_target = st.number_input(
     min_value=0,
     max_value=10000000,
     value=6000,
-    step=500
+    step=500,
+    key="savings_case_target"
 )
 
 if case_target == 0:
+
     st.success(tr("Your target is already zero."))
+
 elif case_monthly > 0:
+
     case_months = math.ceil(case_target / case_monthly)
+
     st.metric(
         tr("Estimated months needed"),
         str(case_months)
     )
+
 else:
+
     st.warning(tr("Enter a monthly amount greater than zero."))
 
 st.markdown("---")
@@ -481,20 +518,21 @@ st.error(
 
 st.markdown("---")
 
-# FINAL SUMMARY
+# SECTION 10: FINAL SUMMARY
 st.header("10. " + tr("Your Savings Action Plan"))
 
 action_items = [
-    tr("Choose one realistic savings goal."),
-    tr("Decide how much you can save regularly."),
-    tr("Choose a suitable and trustworthy place to keep your savings."),
-    tr("Review your progress every month."),
-    tr("Check official terms before opening any savings product.")
+    "Choose one realistic savings goal.",
+    "Decide how much you can save regularly.",
+    "Choose a suitable and trustworthy place to keep your savings.",
+    "Review your progress every month.",
+    "Check official terms before opening any savings product."
 ]
 
 for index, item in enumerate(action_items):
+
     st.checkbox(
-        item,
+        tr(item),
         key=f"savings_action_{index}"
     )
 
