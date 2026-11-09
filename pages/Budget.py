@@ -1,4 +1,4 @@
-
+```python
 import streamlit as st
 import pandas as pd
 from translation import tr, LANGUAGES
@@ -18,18 +18,16 @@ if st.session_state["language"] not in LANGUAGES:
 
 st.sidebar.title(tr("🌐 Language / ಭಾಷೆ"))
 
-selected_language = st.sidebar.selectbox(
+st.sidebar.selectbox(
     tr("Choose your language"),
     LANGUAGES,
-    index=LANGUAGES.index(st.session_state["language"]),
-    key="budget_language"
+    key="language"
 )
 
-if selected_language != st.session_state["language"]:
-    st.session_state["language"] = selected_language
-    st.query_params["language"] = selected_language
-    st.rerun()
+# Keep the selected language in the URL
+st.query_params["language"] = st.session_state["language"]
 
+# Main heading
 st.title(tr("💰 Smart Budget Planner"))
 st.subheader(tr("Plan your income, manage expenses, and build savings."))
 
@@ -68,30 +66,38 @@ st.markdown("---")
 # 2. Choose a budget rule
 st.header(tr("2. Choose a Budget Plan"))
 
+plan_options = [
+    "50/30/20: Needs / Wants / Savings",
+    "60/20/20: Needs / Wants / Savings",
+    "70/20/10: Needs / Wants / Savings",
+    "Custom percentages"
+]
+
 plan = st.selectbox(
     tr("Select a suggested allocation"),
-    [
-        "50/30/20: Needs / Wants / Savings",
-        "60/20/20: Needs / Wants / Savings",
-        "70/20/10: Needs / Wants / Savings",
-        "Custom percentages"
-    ],
+    plan_options,
+    format_func=tr,
     key="budget_plan"
 )
 
 if plan.startswith("50/30/20"):
     needs_pct, wants_pct, savings_pct = 50, 30, 20
+
 elif plan.startswith("60/20/20"):
     needs_pct, wants_pct, savings_pct = 60, 20, 20
+
 elif plan.startswith("70/20/10"):
     needs_pct, wants_pct, savings_pct = 70, 20, 10
+
 else:
     needs_pct = st.slider(
         tr("Needs (%)"), 0, 100, 50, key="custom_needs"
     )
+
     wants_pct = st.slider(
         tr("Wants (%)"), 0, 100, 30, key="custom_wants"
     )
+
     savings_pct = st.slider(
         tr("Savings (%)"), 0, 100, 20, key="custom_savings"
     )
@@ -188,16 +194,21 @@ with col3:
     )
 
 if total_income == 0 and total_expenses > 0:
-    st.error(tr("Your expenses are greater than your available income. Review your plan."))
+    st.error(
+        tr("Your expenses are greater than your available income. Review your plan.")
+    )
+
 elif balance < 0:
     st.error(
         tr("Your planned expenses exceed your income. "
            "Review optional expenses where possible. Avoid cutting essential needs.")
     )
+
 elif balance == 0 and total_income > 0:
     st.warning(
         tr("Your entire income is allocated. Consider whether you can make room for emergency savings.")
     )
+
 elif total_income > 0:
     st.success(
         tr("Your planned expenses fit within your available income.")
@@ -205,6 +216,7 @@ elif total_income > 0:
 
 if total_income > 0:
     st.progress(min(total_expenses / total_income, 1.0))
+
     st.caption(
         tr("Share of income allocated to expenses: ")
         + f"{total_expenses / total_income * 100:.1f}%"
@@ -212,12 +224,18 @@ if total_income > 0:
 
 # Expense breakdown
 if total_expenses > 0:
+
     chart_data = pd.DataFrame({
-        tr("Category"): [tr(c) for c, v in expense_values.items() if v > 0],
-        tr("Amount (₹)"): [v for v in expense_values.values() if v > 0]
+        tr("Category"): [
+            tr(c) for c, v in expense_values.items() if v > 0
+        ],
+        tr("Amount (₹)"): [
+            v for v in expense_values.values() if v > 0
+        ]
     })
 
     st.subheader(tr("Expense Breakdown"))
+
     st.bar_chart(
         chart_data.set_index(tr("Category"))
     )
@@ -227,6 +245,7 @@ if total_expenses > 0:
         use_container_width=True,
         hide_index=True
     )
+
 else:
     st.info(tr("Enter some expenses to see your spending breakdown."))
 
@@ -375,3 +394,4 @@ st.success(
 )
 
 st.caption(tr("FinSaathi — Learn Finance. Stay Safe."))
+```
